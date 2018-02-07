@@ -64,9 +64,6 @@ class If(mixins.TaskDescriptionMixin,
         self._on_true = resolver.get_implementation(self._on_true)
         self._on_false = resolver.get_implementation(self._on_false)
 
-        if isinstance(self._condition, ThisObject):
-            self._condition = getattr(self.flow_class.instance, self._condition.name)
-
     def Then(self, node):
         """Node activated if condition is True."""
         result = copy(self)
@@ -81,4 +78,8 @@ class If(mixins.TaskDescriptionMixin,
 
     @property
     def condition(self):  # noqa D012
+        if isinstance(self._condition, ThisObject):
+            handler = getattr(self.flow_class.instance, self._condition.name)
+            self._condition = handler(self)
+
         return self._condition
