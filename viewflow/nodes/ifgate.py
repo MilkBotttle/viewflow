@@ -31,7 +31,7 @@ class If(mixins.TaskDescriptionMixin,
          mixins.PerformViewMixin,
          Gateway):
     """If gateway, activate one of outgoing node.
-
+        
     Example::
 
         class MyFlow(Flow):
@@ -40,6 +40,17 @@ class If(mixins.TaskDescriptionMixin,
                 .Then(this.send_message)
                 .Else(this.end_rejected)
             )
+    Example2::
+        
+        class MyFlow(Flow):
+            check_something = (
+                flow.If(this.con_func)
+                    .Then(this.true_node)
+                    .Else(this.false_node)
+            )
+            def con_func(self, activation, **kwargs):
+                ...
+                return True or False
     """
 
     task_type = 'IF'
