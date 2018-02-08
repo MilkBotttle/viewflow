@@ -60,7 +60,9 @@ class Test(TestCase):
         with activation.Context(first_scope='first_scope'):
             with activation.Context(second_scope='second_scope'):
                 self.assertEqual(activation.context.first_scope, 'first_scope')
-                self.assertEqual(activation.context.second_scope, 'second_scope')
+                self.assertEqual(
+                    activation.context.second_scope,
+                    'second_scope')
 
             self.assertEqual(activation.context.first_scope, 'first_scope')
             self.assertTrue(hasattr(activation.context, 'first_scope'))
@@ -155,7 +157,8 @@ class Test(TestCase):
     def test_jobactivation_lifecycle(self):
         class JobActivation(activation.AbstractJobActivation):
             def __init__(self, *args, **kwargs):
-                self.throw_on_schedule_error = kwargs.pop('throw_on_schedule_error', False)
+                self.throw_on_schedule_error = kwargs.pop(
+                    'throw_on_schedule_error', False)
                 super(JobActivation, self).__init__(*args, **kwargs)
 
             def run_async(self):

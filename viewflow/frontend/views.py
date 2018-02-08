@@ -53,7 +53,12 @@ class BaseTasksActionView(FlowListMixin, generic.TemplateView):
         """
         raise NotImplementedError
 
-    def report(self, message, level=messages.INFO, fail_silently=True, **kwargs):
+    def report(
+            self,
+            message,
+            level=messages.INFO,
+            fail_silently=True,
+            **kwargs):
         """Send a notification with link to the tasks.
 
         :param message: A message template.
@@ -72,7 +77,8 @@ class BaseTasksActionView(FlowListMixin, generic.TemplateView):
         tasks_links = []
         for task in self.tasks:
             task_url = self.get_task_url(task, url_type='detail')
-            task_link = '<a href="{task_url}">#{task_pk}</a>'.format(task_url=task_url, task_pk=task.pk)
+            task_link = '<a href="{task_url}">#{task_pk}</a>'.format(
+                task_url=task_url, task_pk=task.pk)
             tasks_links.append(task_link)
 
         kwargs.update({
@@ -81,23 +87,41 @@ class BaseTasksActionView(FlowListMixin, generic.TemplateView):
 
         message = mark_safe(_(message).format(**kwargs))
 
-        messages.add_message(self.request, level, message, fail_silently=fail_silently)
+        messages.add_message(self.request, level, message,
+                             fail_silently=fail_silently)
 
     def success(self, message, fail_silently=True, **kwargs):
         """Notification about successful operation."""
-        self.report(message, level=messages.SUCCESS, fail_silently=fail_silently, **kwargs)
+        self.report(
+            message,
+            level=messages.SUCCESS,
+            fail_silently=fail_silently,
+            **kwargs)
 
     def error(self, message, fail_silently=True, **kwargs):
         """Notification about an error."""
-        self.report(message, level=messages.ERROR, fail_silently=fail_silently, **kwargs)
+        self.report(
+            message,
+            level=messages.ERROR,
+            fail_silently=fail_silently,
+            **kwargs)
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         """Process request.GET['tasks'] parameter and perform the action."""
-        requested_pks = [pk for pk in request.GET.get('tasks', '').split(',') if pk.isdigit()]
+        requested_pks = [
+            pk for pk in request.GET.get(
+                'tasks',
+                '').split(',') if pk.isdigit()]
         self.tasks = self.get_tasks(request.user, requested_pks)
 
-        return super(BaseTasksActionView, self).dispatch(request, *args, **kwargs)
+        return super(
+            BaseTasksActionView,
+            self).dispatch(
+            request,
+            *
+            args,
+            **kwargs)
 
 
 class TasksUnAssignView(BaseTasksActionView):
@@ -112,7 +136,8 @@ class TasksUnAssignView(BaseTasksActionView):
     def post(self, request, *args, **kwargs):
         """Deassign tasks from the user."""
         for task in self.tasks:
-            lock = task.process.flow_class.lock_impl(task.process.flow_class.instance)
+            lock = task.process.flow_class.lock_impl(
+                task.process.flow_class.instance)
             with lock(task.process.flow_class, task.process_id):
                 activation = task.activate()
                 activation.unassign()
@@ -133,7 +158,8 @@ class TasksAssignView(BaseTasksActionView):
     def post(self, request, *args, **kwargs):
         """Assign tasks to the current user."""
         for task in self.tasks:
-            lock = task.process.flow_class.lock_impl(task.process.flow_class.instance)
+            lock = task.process.flow_class.lock_impl(
+                task.process.flow_class.instance)
             with lock(task.process.flow_class, task.process_id):
                 activation = task.activate()
                 activation.assign(self.request.user)
@@ -153,15 +179,22 @@ class AllTaskListView(FlowListMixin,
     template_name = 'viewflow/site_tasks.html'
 
     def task_hash(self, task):
-        task_url = frontend_url(self.request, self.get_task_url(task), back_link='here')
-        return mark_safe('<a href="{}">{}/{}</a>'.format(task_url, task.process.id, task.pk))
+        task_url = frontend_url(
+            self.request,
+            self.get_task_url(task),
+            back_link='here')
+        return mark_safe(
+            '<a href="{}">{}/{}</a>'.format(task_url, task.process.id, task.pk))
     task_hash.short_description = _("#")
 
     def description(self, task):
         summary = task.summary()
         if not summary:
             summary = task.flow_task
-        task_url = frontend_url(self.request, self.get_task_url(task), back_link='here')
+        task_url = frontend_url(
+            self.request,
+            self.get_task_url(task),
+            back_link='here')
         return mark_safe('<a href="{}">{}</a>'.format(task_url, summary))
     description.short_description = _('Task Description')
 
@@ -170,9 +203,11 @@ class AllTaskListView(FlowListMixin,
     process_summary.short_description = _('Process Summary')
 
     def process_url(self, task):
-        process_url = frontend_url(self.request, self.get_process_url(task.process), back_link='here')
-        return mark_safe('<a href="{}">{} #{}</a>'.format(
-            process_url, task.process.flow_class.process_title, task.process.pk))
+        process_url = frontend_url(
+            self.request, self.get_process_url(
+                task.process), back_link='here')
+        return mark_safe('<a href="{}">{} #{}</a>'.format(process_url,
+                                                          task.process.flow_class.process_title, task.process.pk))
     process_url.short_description = _('Process URL')
 
     def get_queryset(self):
@@ -199,15 +234,22 @@ class AllQueueListView(
     template_name = 'viewflow/site_queue.html'
 
     def task_hash(self, task):
-        task_url = frontend_url(self.request, self.get_task_url(task), back_link='here')
-        return mark_safe('<a href="{}">{}/{}</a>'.format(task_url, task.process.id, task.pk))
+        task_url = frontend_url(
+            self.request,
+            self.get_task_url(task),
+            back_link='here')
+        return mark_safe(
+            '<a href="{}">{}/{}</a>'.format(task_url, task.process.id, task.pk))
     task_hash.short_description = _("#")
 
     def description(self, task):
         summary = task.summary()
         if not summary:
             summary = task.flow_task
-        task_url = frontend_url(self.request, self.get_task_url(task), back_link='here')
+        task_url = frontend_url(
+            self.request,
+            self.get_task_url(task),
+            back_link='here')
         return mark_safe('<a href="{}">{}</a>'.format(task_url, summary))
     description.short_description = _('Task Description')
 
@@ -216,9 +258,11 @@ class AllQueueListView(
     process_summary.short_description = _('Process Summary')
 
     def process_url(self, task):
-        process_url = frontend_url(self.request, self.get_process_url(task.process), back_link='here')
-        return mark_safe('<a href="{}">{} #{}</a>'.format(
-            process_url, task.process.flow_class.process_title, task.process.pk))
+        process_url = frontend_url(
+            self.request, self.get_process_url(
+                task.process), back_link='here')
+        return mark_safe('<a href="{}">{} #{}</a>'.format(process_url,
+                                                          task.process.flow_class.process_title, task.process.pk))
     process_url.short_description = _('Process URL')
 
     def get_queryset(self):
@@ -244,26 +288,37 @@ class AllArchiveListView(FlowListMixin,
     template_name = 'viewflow/site_archive.html'
 
     def task_hash(self, task):
-        task_url = frontend_url(self.request, self.get_task_url(task), back_link='here')
-        return mark_safe('<a href="{}">{}/{}</a>'.format(task_url, task.process.id, task.pk))
+        task_url = frontend_url(
+            self.request,
+            self.get_task_url(task),
+            back_link='here')
+        return mark_safe(
+            '<a href="{}">{}/{}</a>'.format(task_url, task.process.id, task.pk))
     task_hash.short_description = _("#")
 
     def description(self, task):
         summary = task.summary()
         if not summary:
             summary = task.flow_task
-        task_url = frontend_url(self.request, self.get_task_url(task), back_link='here')
+        task_url = frontend_url(
+            self.request,
+            self.get_task_url(task),
+            back_link='here')
         return mark_safe('<a href="{}">{}</a>'.format(task_url, summary))
     description.short_description = _('Task Description')
 
     def process_title(self, task):
-        process_url = frontend_url(self.request, self.get_process_url(task.process), back_link='here')
-        return mark_safe('<a href="{}">{} #{}</a>'.format(
-            process_url, task.flow_task.flow_class.process_title, task.process.pk))
+        process_url = frontend_url(
+            self.request, self.get_process_url(
+                task.process), back_link='here')
+        return mark_safe('<a href="{}">{} #{}</a>'.format(process_url,
+                                                          task.flow_task.flow_class.process_title, task.process.pk))
     process_title.short_description = _('Process')
 
     def process_summary(self, task):
-        process_url = frontend_url(self.request, self.get_process_url(task.process), back_link='here')
+        process_url = frontend_url(
+            self.request, self.get_process_url(
+                task.process), back_link='here')
         return mark_safe('<a href="{}">{}</a>'.format(
             process_url, task.flow_process.summary()))
     process_summary.short_description = _('Process Summary')
@@ -327,9 +382,8 @@ class ProcessListView(FlowViewPermissionMixin,
         if self.template_name is None:
             opts = self.flow_class._meta
 
-            return (
-                '{}/{}/process_list.html'.format(opts.app_label, opts.flow_label),
-                'viewflow/flow/process_list.html')
+            return ('{}/{}/process_list.html'.format(opts.app_label,
+                                                     opts.flow_label), 'viewflow/flow/process_list.html')
         else:
             return [self.template_name]
 

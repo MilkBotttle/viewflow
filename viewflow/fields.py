@@ -20,7 +20,8 @@ def get_flow_ref(flow_class):
     module = "{}.{}".format(flow_class.__module__, flow_class.__name__)
     app_label, app_package = get_containing_app_data(module)
     if app_label is None:
-        raise FlowRuntimeError('No application found for {}. Check your INSTALLED_APPS setting'.format(module))
+        raise FlowRuntimeError(
+            'No application found for {}. Check your INSTALLED_APPS setting'.format(module))
 
     subpath = module[len(app_package) + 1:]
     return "{}/{}".format(app_label, subpath)
@@ -30,7 +31,10 @@ def import_task_by_ref(task_strref):
     """Return flow task by reference like `app_label/path.to.Flowcls.task_name`."""
     app_label, flow_path = task_strref.split('/')
     flow_path, task_name = flow_path.rsplit('.', 1)
-    flow_class = import_string('{}.{}'.format(get_app_package(app_label), flow_path))
+    flow_class = import_string(
+        '{}.{}'.format(
+            get_app_package(app_label),
+            flow_path))
     return flow_class._meta.node(task_name)
 
 
@@ -39,11 +43,15 @@ def get_task_ref(flow_task):
     module = flow_task.flow_class.__module__
     app_label, app_package = get_containing_app_data(module)
     if app_label is None:
-        raise FlowRuntimeError('No application found for {}. Check your INSTALLED_APPS setting'.format(module))
+        raise FlowRuntimeError(
+            'No application found for {}. Check your INSTALLED_APPS setting'.format(module))
 
     subpath = module[len(app_package) + 1:]
 
-    return "{}/{}.{}.{}".format(app_label, subpath, flow_task.flow_class.__name__, flow_task.name)
+    return "{}/{}.{}.{}".format(app_label,
+                                subpath,
+                                flow_task.flow_class.__name__,
+                                flow_task.name)
 
 
 class ClassValueWrapper(object):
@@ -81,6 +89,7 @@ class _Creator(object):
 
 def _make_contrib(superclass, func=None):
     """Backport from django 1.8."""
+
     def contribute_to_class(self, cls, name, **kwargs):
         if func:
             func(self, cls, name, **kwargs)

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import django.db.models.deletion
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,20 +15,35 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='HelloWorldProcess',
             fields=[
-                ('process_ptr', models.OneToOneField(to='viewflow.Process', primary_key=True, parent_link=True, serialize=False, auto_created=True, on_delete=django.db.models.deletion.CASCADE)),
-                ('text', models.CharField(max_length=50)),
-                ('approved', models.BooleanField(default=False)),
+                ('process_ptr',
+                 models.OneToOneField(
+                     to='viewflow.Process',
+                     primary_key=True,
+                     parent_link=True,
+                     serialize=False,
+                     auto_created=True,
+                     on_delete=django.db.models.deletion.CASCADE)),
+                ('text',
+                 models.CharField(
+                     max_length=50)),
+                ('approved',
+                 models.BooleanField(
+                     default=False)),
             ],
-            options={'verbose_name': 'Hello Request'},
-            bases=('viewflow.process',),
+            options={
+                'verbose_name': 'Hello Request'},
+            bases=(
+                'viewflow.process',
+            ),
         ),
         migrations.CreateModel(
             name='HelloWorldTask',
-            fields=[
-            ],
+            fields=[],
             options={
                 'proxy': True,
             },
-            bases=('viewflow.task',),
+            bases=(
+                'viewflow.task',
+            ),
         ),
     ]

@@ -21,7 +21,10 @@ class HandlerActivation(Activation):
         with self.exception_guard():
             self.task.started = now()
 
-            signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_started.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.execute()
 
@@ -29,7 +32,10 @@ class HandlerActivation(Activation):
             self.set_status(STATUS.DONE)
             self.task.save()
 
-            signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_finished.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.activate_next()
 
@@ -38,16 +44,23 @@ class HandlerActivation(Activation):
         """Retry the next node calculation and activation."""
         self.perform.original()
 
-    @Activation.status.transition(source=[STATUS.ERROR, STATUS.DONE], target=STATUS.NEW)
+    @Activation.status.transition(
+        source=[
+            STATUS.ERROR,
+            STATUS.DONE],
+        target=STATUS.NEW)
     def undo(self):
         """Undo the task."""
         super(HandlerActivation, self).undo.original()
 
-    @Activation.status.transition(source=STATUS.DONE, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        conditions=[all_leading_canceled])
     def activate_next(self):
         """Activate all outgoing edges."""
         if self.flow_task._next:
-            self.flow_task._next.activate(prev_activation=self, token=self.task.token)
+            self.flow_task._next.activate(
+                prev_activation=self, token=self.task.token)
 
     @classmethod
     def activate(cls, flow_task, prev_activation, token):

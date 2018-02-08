@@ -48,7 +48,7 @@ class AbstractProcess(models.Model):
 
     def summary(self):
         """Quick textual process state representation for end user."""
-        if self.flow_class and self.flow_class.process_class == type(self):
+        if self.flow_class and isinstance(self, self.flow_class.process_class):
             return Template(
                 self.flow_class.summary_template
             ).render(
@@ -79,12 +79,20 @@ class AbstractTask(models.Model):
 
     flow_task = TaskReferenceField(_('Task'))
     flow_task_type = models.CharField(_('Type'), max_length=50)
-    status = models.CharField(_('Status'), max_length=50, default=STATUS.NEW, db_index=True)
+    status = models.CharField(
+        _('Status'),
+        max_length=50,
+        default=STATUS.NEW,
+        db_index=True)
 
     created = models.DateTimeField(_('Created'), auto_now_add=True)
     started = models.DateTimeField(_('Started'), blank=True, null=True)
     finished = models.DateTimeField(_('Finished'), blank=True, null=True)
-    previous = models.ManyToManyField('self', symmetrical=False, related_name='leading', verbose_name=_('Previous'))
+    previous = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='leading',
+        verbose_name=_('Previous'))
     token = TokenField(_('Token'), default='start')
 
     objects = TaskQuerySet.as_manager()
@@ -96,7 +104,8 @@ class AbstractTask(models.Model):
     def flow_process(self):
         """Return process instance of flow_class type."""
         if self.flow_task is not None:
-            return coerce_to_related_instance(self.process, self.flow_task.flow_class.process_class)
+            return coerce_to_related_instance(
+                self.process, self.flow_task.flow_class.process_class)
 
     def summary(self):
         """Quick textual task result representation for end user."""
@@ -116,7 +125,8 @@ class AbstractTask(models.Model):
 
     def save(self, *args, **kwargs):  # noqa D102
         if self.status == STATUS.PREPARED:
-            raise FlowRuntimeError("Can't save task with intermediate status - PREPARED")
+            raise FlowRuntimeError(
+                "Can't save task with intermediate status - PREPARED")
 
         if self.flow_task:
             self.flow_task_type = self.flow_task.task_type
@@ -154,13 +164,22 @@ class Process(AbstractProcess):
 class Task(AbstractTask):
     """Default viewflow Task model."""
 
-    process = models.ForeignKey(Process, on_delete=models.CASCADE, verbose_name=_('Process'))
+    process = models.ForeignKey(
+        Process,
+        on_delete=models.CASCADE,
+        verbose_name=_('Process'))
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, blank=True, null=True, db_index=True,
         on_delete=models.CASCADE, verbose_name=_('Owner'))
-    external_task_id = models.CharField(_('External Task ID'), max_length=50, blank=True, null=True, db_index=True)
-    owner_permission = models.CharField(_('Permission'), max_length=255, blank=True, null=True)
+    external_task_id = models.CharField(
+        _('External Task ID'),
+        max_length=50,
+        blank=True,
+        null=True,
+        db_index=True)
+    owner_permission = models.CharField(
+        _('Permission'), max_length=255, blank=True, null=True)
 
     comments = models.TextField(_('Comments'), blank=True, null=True)
 

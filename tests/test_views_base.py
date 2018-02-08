@@ -15,11 +15,14 @@ class Test(TestCase):
         request.user = User(username='test')
         request.resolver_match = resolve('/test/')
 
-        next_url = views.get_next_task_url(request, BaseViewTestFlow.process_class(flow_class=BaseViewTestFlow))
+        next_url = views.get_next_task_url(
+            request, BaseViewTestFlow.process_class(
+                flow_class=BaseViewTestFlow))
         self.assertEqual(next_url, '/test/')
 
     def test_get_next_task_url_process_list(self):
-        process = BaseViewTestFlow.process_class.objects.create(flow_class=BaseViewTestFlow)
+        process = BaseViewTestFlow.process_class.objects.create(
+            flow_class=BaseViewTestFlow)
         request = RequestFactory().get('/test/')
         request.user = User(username='test')
         request.resolver_match = resolve('/test/')
@@ -35,7 +38,8 @@ class Test(TestCase):
         next_url = views.get_next_task_url(request, None)
         self.assertEqual(next_url, '/test_back_url/')
 
-        request = RequestFactory().get('/test/', {'back': 'http://unsafe.com/test_back_url/'})
+        request = RequestFactory().get('/test/',
+                                       {'back': 'http://unsafe.com/test_back_url/'})
         request.user = User(username='test')
         request.resolver_match = resolve('/test/')
 
@@ -53,7 +57,8 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         next_url = views.get_next_task_url(request, act.process)
-        self.assertEqual(next_url, '/test/{}/test_task/{}/'.format(task.process_id, task.pk))
+        self.assertEqual(
+            next_url, '/test/{}/test_task/{}/'.format(task.process_id, task.pk))
 
     def test_get_next_task_url_continue_unassigned_task(self):
         user = User.objects.create(username='test')
@@ -66,7 +71,8 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         next_url = views.get_next_task_url(request, act.process)
-        self.assertEqual(next_url, '/test/{}/test_task/{}/assign/'.format(task.process_id, task.pk))
+        self.assertEqual(
+            next_url, '/test/{}/test_task/{}/assign/'.format(task.process_id, task.pk))
 
     def test_detail_view(self):
         act = BaseViewTestFlow.start.run()
@@ -78,16 +84,22 @@ class Test(TestCase):
         request.user = User(username='test', is_superuser=True)
         request.resolver_match = resolve('/test/')
         response = view(
-            request, flow_class=BaseViewTestFlow, flow_task=BaseViewTestFlow.test_task,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=BaseViewTestFlow,
+            flow_task=BaseViewTestFlow.test_task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_base/baseviewtest/test_task_detail.html',
-                          'tests/test_views_base/baseviewtest/task_detail.html',
-                          'viewflow/flow/task_detail.html'))
-        self.assertEqual(response.context_data['activation'].process, act.process)
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_base/baseviewtest/test_task_detail.html',
+             'tests/test_views_base/baseviewtest/task_detail.html',
+             'viewflow/flow/task_detail.html'))
+        self.assertEqual(
+            response.context_data['activation'].process,
+            act.process)
 
 
 class BaseViewTestFlow(Flow):

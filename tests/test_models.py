@@ -19,15 +19,22 @@ class Test(TestCase):
     def test_process_create_by(self):
         user = User.objects.create(username='Test')
         process = Process.objects.create(flow_class=Flow)
-        Task.objects.create(process=process, flow_task=GrandChildFlow.start, owner=user)
+        Task.objects.create(
+            process=process,
+            flow_task=GrandChildFlow.start,
+            owner=user)
 
         self.assertEqual(process.created_by, user)
 
     def test_task_get_real_process_class(self):
-        process = TestModelsGrandChildProcess.objects.create(flow_class=GrandChildFlow)
-        task = Task.objects.create(process=process, flow_task=GrandChildFlow.start)
+        process = TestModelsGrandChildProcess.objects.create(
+            flow_class=GrandChildFlow)
+        task = Task.objects.create(
+            process=process,
+            flow_task=GrandChildFlow.start)
 
-        # can't user refresh_from_db() here, task.process is not updated to correct base class
+        # can't user refresh_from_db() here, task.process is not updated to
+        # correct base class
         task = Task.objects.get(pk=task.pk)
 
         self.assertIsInstance(task.flow_process, TestModelsGrandChildProcess)

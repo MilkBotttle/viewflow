@@ -61,7 +61,10 @@ class Test(TestCase):
     def test_include_process_data(self):
         act = TestTemplateTagsFlow.start.run()
         user = User.objects.create(username="test")
-        request = type('Request', (object,), {'user': user, 'GET': QueryDict(query_string=None)})
+        request = type(
+            'Request', (object,), {
+                'user': user, 'GET': QueryDict(
+                    query_string=None)})
         request.resolver_match = resolve('/test/')
         process_data = Template("{% load viewflow %}{% include_process_data process %}").render(
             Context({'process': act.process, 'request': request}))
@@ -84,6 +87,7 @@ class TestTemplateTagsFlow(Flow):
     end = flow.End()
 
 
-urlpatterns = [
-    url(r'^test/', include((viewset.FlowViewSet(TestTemplateTagsFlow).urls, 'testtemplatetags'))),
-]
+urlpatterns = [url(r'^test/',
+                   include((viewset.FlowViewSet(TestTemplateTagsFlow).urls,
+                            'testtemplatetags'))),
+               ]

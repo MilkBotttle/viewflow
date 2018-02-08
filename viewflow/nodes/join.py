@@ -16,7 +16,10 @@ class JoinActivation(Activation):
     def start(self):
         """Create Join task on the first incoming node complete."""
         self.task.save()
-        signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_started.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
     @Activation.status.transition(source=STATUS.STARTED)
     def done(self):
@@ -26,7 +29,10 @@ class JoinActivation(Activation):
             self.set_status(STATUS.DONE)
             self.task.save()
 
-            signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_finished.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.activate_next()
 
@@ -45,13 +51,18 @@ class JoinActivation(Activation):
             for prev in self.task.previous.exclude(status=STATUS.CANCELED).all())
 
         if len(join_prefixes) > 1:
-            raise FlowRuntimeError('Multiple tokens {} came to join {}'.format(join_prefixes, self.flow_task.name))
+            raise FlowRuntimeError(
+                'Multiple tokens {} came to join {}'.format(
+                    join_prefixes, self.flow_task.name))
 
         join_token_prefix = next(iter(join_prefixes))
 
-        active = self.flow_class.task_class._default_manager \
-            .filter(process=self.process, token__startswith=join_token_prefix) \
-            .exclude(status__in=[STATUS.DONE, STATUS.CANCELED])
+        active = self.flow_class.task_class._default_manager .filter(
+            process=self.process,
+            token__startswith=join_token_prefix) .exclude(
+            status__in=[
+                STATUS.DONE,
+                STATUS.CANCELED])
 
         return not active.exists()
 
@@ -75,7 +86,11 @@ class JoinActivation(Activation):
         if self.is_done():
             self.done.original()
 
-    @Activation.status.transition(source=[STATUS.NEW, STATUS.STARTED], target=STATUS.CANCELED)
+    @Activation.status.transition(
+        source=[
+            STATUS.NEW,
+            STATUS.STARTED],
+        target=STATUS.CANCELED)
     def cancel(self):
         """Cancel existing join."""
         super(JoinActivation, self).cancel.original()
@@ -104,7 +119,8 @@ class JoinActivation(Activation):
             status=STATUS.STARTED)
 
         if len(tasks) > 1:
-            raise FlowRuntimeError('More than one join instance for process found')
+            raise FlowRuntimeError(
+                'More than one join instance for process found')
 
         activation = cls()
 

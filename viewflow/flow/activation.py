@@ -29,11 +29,14 @@ class ManagedStartViewActivation(StartActivation):
         self.task.owner = user
 
         management_form_class = self.get_management_form_class()
-        self.management_form = management_form_class(data=data, instance=self.task)
+        self.management_form = management_form_class(
+            data=data, instance=self.task)
 
         if data:
             if not self.management_form.is_valid():
-                raise FlowRuntimeError('Activation metadata is broken {}'.format(self.management_form.errors))
+                raise FlowRuntimeError(
+                    'Activation metadata is broken {}'.format(
+                        self.management_form.errors))
             self.task = self.management_form.save(commit=False)
 
 
@@ -66,11 +69,14 @@ class ManagedViewActivation(ViewActivation):
             self.task.owner = user
 
         management_form_class = self.get_management_form_class()
-        self.management_form = management_form_class(data=data, instance=self.task)
+        self.management_form = management_form_class(
+            data=data, instance=self.task)
 
         if data:
             if not self.management_form.is_valid():
-                raise FlowRuntimeError('Activation metadata is broken {}'.format(self.management_form.errors))
+                raise FlowRuntimeError(
+                    'Activation metadata is broken {}'.format(
+                        self.management_form.errors))
             self.task = self.management_form.save(commit=False)
 
     @classmethod

@@ -30,8 +30,14 @@ class FlowManagePermissionMixin(object):
 
     def dispatch(self, *args, **kwargs):  # noqa D102
         self.flow_class = kwargs['flow_class']
-        return permission_required(self.flow_class._meta.manage_permission_name)(
-            super(FlowManagePermissionMixin, self).dispatch)(*args, **kwargs)
+        return permission_required(
+            self.flow_class._meta.manage_permission_name)(
+            super(
+                FlowManagePermissionMixin,
+                self).dispatch)(
+                *
+                args,
+            **kwargs)
 
 
 class FlowTaskManagePermissionMixin(object):
@@ -40,14 +46,25 @@ class FlowTaskManagePermissionMixin(object):
     def dispatch(self, *args, **kwargs):  # noqa D102
         self.flow_task = kwargs['flow_task']
         self.flow_class = self.flow_task.flow_class
-        return permission_required(self.flow_class._meta.manage_permission_name)(
-            super(FlowTaskManagePermissionMixin, self).dispatch)(*args, **kwargs)
+        return permission_required(
+            self.flow_class._meta.manage_permission_name)(
+            super(
+                FlowTaskManagePermissionMixin,
+                self).dispatch)(
+                *
+                args,
+            **kwargs)
 
 
 class MessageUserMixin(object):
     """Notify a user using django messaging system."""
 
-    def report(self, message, level=messages.INFO, fail_silently=True, **kwargs):
+    def report(
+            self,
+            message,
+            level=messages.INFO,
+            fail_silently=True,
+            **kwargs):
         """Send a notification with link to the current process or task.
 
         :param message: A message template.
@@ -66,13 +83,18 @@ class MessageUserMixin(object):
         """
         namespace = self.request.resolver_match.namespace
 
-        process_url = reverse('{}:detail'.format(namespace), args=[self.activation.process.pk])
+        process_url = reverse(
+            '{}:detail'.format(namespace), args=[
+                self.activation.process.pk])
         process_link = '<a href="{process_url}">#{process_pk}</a>'.format(
             process_url=process_url,
             process_pk=self.activation.process.pk)
 
         task_url = self.activation.task.flow_task.get_task_url(
-            self.activation.task, url_type='detail', user=self.request.user, namespace=namespace)
+            self.activation.task,
+            url_type='detail',
+            user=self.request.user,
+            namespace=namespace)
         task_link = '<a href="{task_url}">#{task_pk}</a>'.format(
             task_url=task_url,
             task_pk=self.activation.task.pk)
@@ -83,15 +105,24 @@ class MessageUserMixin(object):
         })
         message = mark_safe(_(message).format(**kwargs))
 
-        messages.add_message(self.request, level, message, fail_silently=fail_silently)
+        messages.add_message(self.request, level, message,
+                             fail_silently=fail_silently)
 
     def success(self, message, fail_silently=True, **kwargs):
         """Notification about successful operation."""
-        self.report(message, level=messages.SUCCESS, fail_silently=fail_silently, **kwargs)
+        self.report(
+            message,
+            level=messages.SUCCESS,
+            fail_silently=fail_silently,
+            **kwargs)
 
     def error(self, message, fail_silently=True, **kwargs):
         """Notification about an error."""
-        self.report(message, level=messages.ERROR, fail_silently=fail_silently, **kwargs)
+        self.report(
+            message,
+            level=messages.ERROR,
+            fail_silently=fail_silently,
+            **kwargs)
 
 
 class FlowListMixin(object):
@@ -117,9 +148,12 @@ class FlowListMixin(object):
     def get_flow_namespace(self, flow_class):
         namespace = self.ns_map.get(flow_class)
         if namespace is None:
-            raise FlowRuntimeError("{} are not registered in {}".format(flow_class, self))
+            raise FlowRuntimeError(
+                "{} are not registered in {}".format(
+                    flow_class, self))
         if not self.ns_map_absolute:
-            return "{}:{}".format(self.request.resolver_match.namespace, namespace)
+            return "{}:{}".format(
+                self.request.resolver_match.namespace, namespace)
 
     def get_process_url(self, process, url_type='detail'):
         namespace = self.get_flow_namespace(process.flow_class)

@@ -191,7 +191,8 @@ class AssignTaskView(MessageUserMixin, generic.TemplateView):
                 self.activation.task, url_type='detail', user=request.user,
                 namespace=self.request.resolver_match.namespace))
 
-        if not self.activation.flow_task.can_assign(request.user, self.activation.task):
+        if not self.activation.flow_task.can_assign(
+                request.user, self.activation.task):
             raise PermissionDenied
 
         return super(AssignTaskView, self).dispatch(request, *args, **kwargs)
@@ -205,7 +206,8 @@ class UnassignTaskView(BaseTaskActionView):
     def can_proceed(self):
         """Check that task is assigned and user has rights to deassign it."""
         if self.activation.unassign.can_proceed():
-            return self.activation.flow_task.can_unassign(self.request.user, self.activation.task)
+            return self.activation.flow_task.can_unassign(
+                self.request.user, self.activation.task)
         return False
 
     def perform(self):

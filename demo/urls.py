@@ -19,7 +19,8 @@ class Demo(ModuleMixin):
 
     @property
     def urls(self):
-        index_view = generic.TemplateView.as_view(template_name='demo/index.html')
+        index_view = generic.TemplateView.as_view(
+            template_name='demo/index.html')
 
         return frontend.ModuleURLResolver(
             '^', [url('^$', index_view, name="index")],

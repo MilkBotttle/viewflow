@@ -48,16 +48,19 @@ def flowurl(parser, token):
     def geturl(ns, ref, url_name=None, user=None, ns_map=None):
         if isinstance(ref, Flow):
             namespace = get_flow_namespace(ref, ns, ns_map)
-            url_ref = '{}:{}'.format(namespace, url_name if url_name else 'index')
+            url_ref = '{}:{}'.format(
+                namespace, url_name if url_name else 'index')
             return reverse(url_ref)
         elif isinstance(ref, AbstractProcess):
             namespace = get_flow_namespace(ref.flow_class, ns, ns_map)
-            kwargs, url_ref = {}, '{}:{}'.format(namespace, url_name if url_name else 'index')
+            kwargs, url_ref = {}, '{}:{}'.format(
+                namespace, url_name if url_name else 'index')
             if url_name in ['detail', 'action_cancel']:
                 kwargs['process_pk'] = ref.pk
             return reverse(url_ref, kwargs=kwargs)
         elif isinstance(ref, AbstractTask):
-            namespace = get_flow_namespace(ref.flow_task.flow_class, ns, ns_map)
+            namespace = get_flow_namespace(
+                ref.flow_task.flow_class, ns, ns_map)
             return ref.flow_task.get_task_url(
                 ref, url_type=url_name if url_name else 'guess',
                 user=user, namespace=namespace)
@@ -72,9 +75,12 @@ def flowurl(parser, token):
             if app_package is None:
                 raise TemplateSyntaxError("{} app not found".format(app_label))
 
-            flow_class = import_string('{}.flows.{}'.format(app_package, flow_class_path))
+            flow_class = import_string(
+                '{}.flows.{}'.format(
+                    app_package, flow_class_path))
             namespace = get_flow_namespace(flow_class, ns, ns_map)
-            url_ref = '{}:{}'.format(namespace, url_name if url_name else 'index')
+            url_ref = '{}:{}'.format(
+                namespace, url_name if url_name else 'index')
             return reverse(url_ref)
 
     class URLNode(Node):
@@ -84,10 +90,13 @@ def flowurl(parser, token):
             self.target_var = target_var
 
         def render(self, context):
-            request = context['request']  # TODO Check that request template context installed
+            # TODO Check that request template context installed
+            request = context['request']
 
             resolved_args = [arg.resolve(context) for arg in self.args]
-            resolved_kwargs = {k: v.resolve(context) for k, v in self.kwargs.items()}
+            resolved_kwargs = {
+                k: v.resolve(context) for k,
+                v in self.kwargs.items()}
 
             base_namespace = resolved_kwargs.pop('ns', None)
             ns_map = resolved_kwargs.get('ns_map', None)
@@ -125,7 +134,6 @@ def flowurl(parser, token):
     return URLNode(args, kwargs, target_var)
 
 
-
 @register.simple_tag
 def flow_perms(user, task):
     """
@@ -138,11 +146,23 @@ def flow_perms(user, task):
     """
     result = []
 
-    if hasattr(task.flow_task, 'can_execute') and task.flow_task.can_execute(user, task):
+    if hasattr(
+            task.flow_task,
+            'can_execute') and task.flow_task.can_execute(
+            user,
+            task):
         result.append('can_execute')
-    if hasattr(task.flow_task, 'can_assign') and task.flow_task.can_assign(user, task):
+    if hasattr(
+            task.flow_task,
+            'can_assign') and task.flow_task.can_assign(
+            user,
+            task):
         result.append('can_assign')
-    if hasattr(task.flow_task, 'can_view') and task.flow_task.can_view(user, task):
+    if hasattr(
+            task.flow_task,
+            'can_view') and task.flow_task.can_view(
+            user,
+            task):
         result.append('can_view')
 
     return result
@@ -174,7 +194,9 @@ def flows_start_actions(flow_classes, user=None):
         {% flows_start_actions view.flows request.user as flow_start_actions %}
     """
     actions = OrderedDict()
-    for flow_class in sorted(flow_classes, key=lambda flow_class: flow_class.process_title):
+    for flow_class in sorted(
+            flow_classes,
+            key=lambda flow_class: flow_class.process_title):
         actions[flow_class] = flow_start_actions(flow_class, user=user)
     return actions
 
@@ -195,8 +217,11 @@ def include_process_data(context, process):
     template = select_template(template_names)
     context.push()
     try:
-        context['process_data'] = get_model_display_data(process, context['request'].user)
+        context['process_data'] = get_model_display_data(
+            process, context['request'].user)
         context['process'] = process
-        return template.render(context.flatten() if hasattr(context, 'flatten') else context)
+        return template.render(
+            context.flatten() if hasattr(
+                context, 'flatten') else context)
     finally:
         context.pop()

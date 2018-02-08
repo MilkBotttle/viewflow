@@ -32,6 +32,7 @@ class SelectForUpdateLock(object):
 
     Recommended to use with PostgreSQL.
     """
+
     def __init__(self, nowait=True, attempts=5):
         self.nowait = nowait
         self.attempts = attempts
@@ -42,14 +43,17 @@ class SelectForUpdateLock(object):
             for i in range(self.attempts):
                 with transaction.atomic():
                     try:
-                        process = flow_class.process_class._default_manager.filter(pk=process_pk)
+                        process = flow_class.process_class._default_manager.filter(
+                            pk=process_pk)
                         process.select_for_update(nowait=self.nowait).exists()
                     except DatabaseError:
                         if i != self.attempts - 1:
-                            sleep_time = (((i + 1) * random.random()) + 2 ** i) / 2.5
+                            sleep_time = (
+                                ((i + 1) * random.random()) + 2 ** i) / 2.5
                             time.sleep(sleep_time)
                         else:
-                            raise FlowLockFailed('Lock failed for {}'.format(flow_class))
+                            raise FlowLockFailed(
+                                'Lock failed for {}'.format(flow_class))
                     else:
                         yield
                         break
@@ -80,7 +84,8 @@ class CacheLock(object):
     def __call__(self, flow):  # noqa D102
         @contextmanager
         def lock(flow_class, process_pk):
-            key = 'django-viewflow-lock-{}/{}'.format(flow_class._meta.flow_label, process_pk)
+            key = 'django-viewflow-lock-{}/{}'.format(
+                flow_class._meta.flow_label, process_pk)
 
             for i in range(self.attempts):
                 if self.cache.add(key, 1, self.expires):

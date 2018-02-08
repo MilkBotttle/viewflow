@@ -16,7 +16,7 @@ class Test(TestCase):
 
     def test_join_with_canceled_tasks(self):
         act = JoinTestFlow.start.run()
-        
+
         # cancel first task
         task1 = act.process.get_task(JoinTestFlow.task1)
         task1.activate().cancel()
@@ -38,7 +38,15 @@ def func(activation, task):
 class JoinTestFlow(Flow):
     start = flow.StartFunction().Next(this.split)
     split = flow.Split().Next(this.task1).Next(this.task2)
-    task1 = flow.Function(func, task_loader=lambda flow_task, task: task).Next(this.join)
-    task2 = flow.Function(func, task_loader=lambda flow_task, task: task).Next(this.join)
+    task1 = flow.Function(
+        func,
+        task_loader=lambda flow_task,
+        task: task).Next(
+        this.join)
+    task2 = flow.Function(
+        func,
+        task_loader=lambda flow_task,
+        task: task).Next(
+        this.join)
     join = flow.Join().Next(this.end)
     end = flow.End()

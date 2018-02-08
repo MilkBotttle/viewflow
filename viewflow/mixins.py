@@ -60,7 +60,13 @@ class DetailViewMixin(object):
         if url_type in ['detail', 'guess']:
             url_name = '{}:{}__detail'.format(namespace, self.name)
             return reverse(url_name, args=[task.process_id, task.pk])
-        return super(DetailViewMixin, self).get_task_url(task, url_type, namespace=namespace, **kwargs)
+        return super(
+            DetailViewMixin,
+            self).get_task_url(
+            task,
+            url_type,
+            namespace=namespace,
+            **kwargs)
 
     def can_view(self, user, task):
         """Check if user has a view task detail permission."""
@@ -95,7 +101,13 @@ class UndoViewMixin(object):
         if url_type in ['undo']:
             url_name = '{}:{}__undo'.format(namespace, self.name)
             return reverse(url_name, args=[task.process_id, task.pk])
-        return super(UndoViewMixin, self).get_task_url(task, url_type, namespace=namespace, **kwargs)
+        return super(
+            UndoViewMixin,
+            self).get_task_url(
+            task,
+            url_type,
+            namespace=namespace,
+            **kwargs)
 
 
 class CancelViewMixin(object):
@@ -126,7 +138,13 @@ class CancelViewMixin(object):
         if url_type in ['cancel']:
             url_name = '{}:{}__cancel'.format(namespace, self.name)
             return reverse(url_name, args=[task.process_id, task.pk])
-        return super(CancelViewMixin, self).get_task_url(task, url_type, namespace=namespace, **kwargs)
+        return super(
+            CancelViewMixin,
+            self).get_task_url(
+            task,
+            url_type,
+            namespace=namespace,
+            **kwargs)
 
 
 class PerformViewMixin(object):
@@ -147,7 +165,7 @@ class PerformViewMixin(object):
         """Add `/<process_pk>/<task_pk>/perform/` url."""
         urls = super(PerformViewMixin, self).urls()
         urls.append(url(r'^(?P<process_pk>\d+)/{}/(?P<task_pk>\d+)/perform/$'.format(self.name),
-                    self.perform_view, {'flow_task': self}, name="{}__perform".format(self.name)))
+                        self.perform_view, {'flow_task': self}, name="{}__perform".format(self.name)))
         return urls
 
     def get_task_url(self, task, url_type='guess', namespace='', **kwargs):
@@ -155,7 +173,13 @@ class PerformViewMixin(object):
         if url_type in ['perform']:
             url_name = '{}:{}__perform'.format(namespace, self.name)
             return reverse(url_name, args=[task.process_id, task.pk])
-        return super(PerformViewMixin, self).get_task_url(task, url_type, namespace=namespace, **kwargs)
+        return super(
+            PerformViewMixin,
+            self).get_task_url(
+            task,
+            url_type,
+            namespace=namespace,
+            **kwargs)
 
 
 class ActivateNextMixin(object):
@@ -186,7 +210,13 @@ class ActivateNextMixin(object):
         if url_type in ['activate_next']:
             url_name = '{}:{}__activate_next'.format(namespace, self.name)
             return reverse(url_name, args=[task.process_id, task.pk])
-        return super(ActivateNextMixin, self).get_task_url(task, url_type, namespace=namespace, **kwargs)
+        return super(
+            ActivateNextMixin,
+            self).get_task_url(
+            task,
+            url_type,
+            namespace=namespace,
+            **kwargs)
 
 
 class PermissionMixin(object):
@@ -200,7 +230,12 @@ class PermissionMixin(object):
 
         super(PermissionMixin, self).__init__(*args, **kwargs)
 
-    def Permission(self, permission=None, auto_create=False, obj=None, help_text=None):
+    def Permission(
+            self,
+            permission=None,
+            auto_create=False,
+            obj=None,
+            help_text=None):
         """
         Make task available for users with specific permission.
 
@@ -219,7 +254,8 @@ class PermissionMixin(object):
             do_task = View().Permission('can_execute_task', help_text='Custom text', auto_create=True)
         """
         if permission is None and not auto_create:
-            raise ValueError('Please specify existion permission name or mark as auto_create=True')
+            raise ValueError(
+                'Please specify existion permission name or mark as auto_create=True')
 
         result = copy(self)
         result._owner_permission = permission
@@ -244,7 +280,8 @@ class PermissionMixin(object):
                 self._owner_permission_help_text = 'Can {}'.format(
                     self.name.replace('_', ' '))
             elif not self._owner_permission_help_text:
-                self._owner_permission_help_text = self._owner_permission.replace('_', ' ').capitalize()
+                self._owner_permission_help_text = self._owner_permission.replace(
+                    '_', ' ').capitalize()
 
             for codename, _ in self.flow_class.process_class._meta.permissions:
                 if codename == self._owner_permission:
@@ -302,13 +339,16 @@ class TaskDescriptionViewMixin(TaskDescriptionMixin):
         super(TaskDescriptionViewMixin, self).__init__(**kwargs)
 
         if view_or_class:
-            if view_or_class.__doc__ and (self.task_title is None or self.task_description is None):
+            if view_or_class.__doc__ and (
+                    self.task_title is None or self.task_description is None):
                 docstring = view_or_class.__doc__.split('\n\n', 1)
                 if self.task_title is None and len(docstring) > 0:
                     self.task_title = docstring[0].strip()
                 if self.task_description is None and len(docstring) > 1:
                     self.task_description = dedent(docstring[1]).strip()
-            if hasattr(view_or_class, 'task_result_summary') and self.task_result_summary is None:
+            if hasattr(
+                    view_or_class,
+                    'task_result_summary') and self.task_result_summary is None:
                 self.task_result_summary = view_or_class.task_result_summary
 
         if self.task_result_summary is None:

@@ -26,10 +26,15 @@ class Test(TestCase):
         request = RequestFactory().get('/start/')
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/test/{}/task/{}/detail/'.format(act.process.pk, task.pk))
+        self.assertEqual(
+            response['location'], '/test/{}/task/{}/detail/'.format(act.process.pk, task.pk))
 
         # assigned get
         act = task.activate()
@@ -38,8 +43,12 @@ class Test(TestCase):
         request = RequestFactory().get('/start/')
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.template_name,
                          ('tests/test_views_task/taskviewtest/task.html',
@@ -49,8 +58,12 @@ class Test(TestCase):
         request = RequestFactory().post('/task/')
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 302)
 
         task.refresh_from_db()
@@ -70,8 +83,12 @@ class Test(TestCase):
         request = RequestFactory().get('/start/')
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.template_name,
                          ('tests/test_views_task/taskviewtest/task.html',
@@ -81,8 +98,12 @@ class Test(TestCase):
         request = RequestFactory().post('/task/')
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 302)
 
         task.refresh_from_db()
@@ -100,22 +121,32 @@ class Test(TestCase):
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
 
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_task/taskviewtest/task_assign.html',
-                          'tests/test_views_task/taskviewtest/task_assign.html',
-                          'viewflow/flow/task_assign.html'))
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_task/taskviewtest/task_assign.html',
+             'tests/test_views_task/taskviewtest/task_assign.html',
+             'viewflow/flow/task_assign.html'))
 
         # unassigned post
         request = RequestFactory().post('/task/')
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/test/{}/task/{}/'.format(act.process.pk, task.pk))
+        self.assertEqual(
+            response['location'], '/test/{}/task/{}/'.format(act.process.pk, task.pk))
 
         task.refresh_from_db()
         self.assertEqual(task.status, STATUS.ASSIGNED)
@@ -126,8 +157,12 @@ class Test(TestCase):
         request.user = user
         request.resolver_match = resolve('/test/1/task/1/')
 
-        response = view(request, flow_class=TaskViewTestFlow, flow_task=TaskViewTestFlow.task,
-                        process_pk=act.process.pk, task_pk=task.pk)
+        response = view(
+            request,
+            flow_class=TaskViewTestFlow,
+            flow_task=TaskViewTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         self.assertEqual(response.status_code, 302)
 
 

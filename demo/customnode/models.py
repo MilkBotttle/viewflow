@@ -11,5 +11,8 @@ class DynamicSplitProcess(Process):
 class Decision(models.Model):
     process = models.ForeignKey(DynamicSplitProcess, on_delete=models.CASCADE)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE)
     decision = models.BooleanField(default=False)

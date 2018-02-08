@@ -62,7 +62,8 @@ class FlowViewSet(object):
 
     def get_list_urls(self):
         """Collect urls from viewset class."""
-        attrs = (getattr(self, attr) for attr in dir(self) if attr.endswith('_view'))
+        attrs = (getattr(self, attr)
+                 for attr in dir(self) if attr.endswith('_view'))
         return [
             self._create_url_entry(value)
             for value in attrs if isinstance(value, (list, tuple))
@@ -71,7 +72,7 @@ class FlowViewSet(object):
     @property
     def urls(self):
         """Collect the viewset and flow urls."""
-        return [
-            url('', include(self.get_list_urls()), {'flow_class': self.flow_class}),
-            self.flow_class.instance.urls
-        ]
+        return [url('',
+                    include(self.get_list_urls()),
+                    {'flow_class': self.flow_class}),
+                self.flow_class.instance.urls]

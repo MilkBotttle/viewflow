@@ -14,9 +14,10 @@ class Test(TestCase):
 
         with Context(throw_test_error=False):
             job_handler(
-                get_task_ref(JobTestFlow.job),
-                act.process.pk,
-                act.process.get_task(JobTestFlow.job, status=[STATUS.SCHEDULED]).pk)
+                get_task_ref(
+                    JobTestFlow.job), act.process.pk, act.process.get_task(
+                    JobTestFlow.job, status=[
+                        STATUS.SCHEDULED]).pk)
 
         tasks = act.process.task_set.all()
         self.assertEqual(3, tasks.count())
@@ -28,9 +29,10 @@ class Test(TestCase):
         with Context(throw_test_error=True):
             try:
                 job_handler(
-                    get_task_ref(JobTestFlow.job),
-                    act.process.pk,
-                    act.process.get_task(JobTestFlow.job, status=[STATUS.SCHEDULED]).pk)
+                    get_task_ref(
+                        JobTestFlow.job), act.process.pk, act.process.get_task(
+                        JobTestFlow.job, status=[
+                            STATUS.SCHEDULED]).pk)
             except ValueError:
                 """Expected test error."""
 
@@ -54,5 +56,8 @@ class JobActivation(AbstractJobActivation):
 
 class JobTestFlow(Flow):
     start = flow.StartFunction().Next(this.job)
-    job = AbstractJob(job_handler, activation_class=JobActivation).Next(this.end)
+    job = AbstractJob(
+        job_handler,
+        activation_class=JobActivation).Next(
+        this.end)
     end = flow.End()

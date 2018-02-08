@@ -19,7 +19,9 @@ class Test(TestCase):
 
     def test_process_with_unfinished_tasks_continues(self):
         act = FlowEndTestFlow.start.run()
-        end = Task.objects.create(process=act.process, flow_task=FlowEndTestFlow.end)
+        end = Task.objects.create(
+            process=act.process,
+            flow_task=FlowEndTestFlow.end)
 
         act = end.activate()
         act.perform()

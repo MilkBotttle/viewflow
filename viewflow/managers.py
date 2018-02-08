@@ -40,7 +40,8 @@ def _get_related_path(model, base_model):
     parent = model._meta.get_ancestor_link(base_model)
 
     while parent is not None:
-        related = parent.remote_field if hasattr(parent, 'remote_field') else parent.rel
+        related = parent.remote_field if hasattr(
+            parent, 'remote_field') else parent.rel
 
         ancestry.insert(0, related.get_accessor_name())
         parent_model = related.model
@@ -81,7 +82,8 @@ class ProcessIterable(ModelIterable):
         if getattr(self.queryset, '_coerced', False):
             for process in base_iterator:
                 if isinstance(process, self.queryset.model):
-                    process = coerce_to_related_instance(process, process.flow_class.process_class)
+                    process = coerce_to_related_instance(
+                        process, process.flow_class.process_class)
                 yield process
         else:
             for process in base_iterator:
@@ -111,14 +113,17 @@ class ProcessQuerySet(QuerySet):
 
         related = filter(
             None, map(
-                lambda flow_class: _get_related_path(flow_class.process_class, self.model),
-                flow_classes))
+                lambda flow_class: _get_related_path(
+                    flow_class.process_class, self.model), flow_classes))
 
-        return self.filter(flow_class__in=flow_classes).select_related(*related)
+        return self.filter(
+            flow_class__in=flow_classes).select_related(
+            *related)
 
     def filter_available(self, flow_classes, user):
         """List of processes available to view for the user."""
-        return self.model.objects.coerce_for(_available_flows(flow_classes, user))
+        return self.model.objects.coerce_for(
+            _available_flows(flow_classes, user))
 
     def _chain(self, **kwargs):
         if hasattr(self, '_coerced'):
@@ -145,7 +150,8 @@ class ProcessQuerySet(QuerySet):
         if getattr(self, '_coerced', False):
             for process in base_iterator:
                 if isinstance(process, self.model):
-                    process = coerce_to_related_instance(process, process.flow_class.process_class)
+                    process = coerce_to_related_instance(
+                        process, process.flow_class.process_class)
                 yield process
         else:
             for process in base_iterator:
@@ -158,7 +164,8 @@ class TaskIterable(ModelIterable):
         if getattr(self.queryset, '_coerced', False):
             for task in base_iterator:
                 if isinstance(task, self.queryset.model):
-                    task = coerce_to_related_instance(task, task.flow_task.flow_class.task_class)
+                    task = coerce_to_related_instance(
+                        task, task.flow_task.flow_class.task_class)
                 yield task
         else:
             for task in base_iterator:
@@ -187,10 +194,12 @@ class TaskQuerySet(QuerySet):
 
         related = filter(
             None, map(
-                lambda flow_class: _get_related_path(flow_class.task_class, self.model),
-                flow_classes))
+                lambda flow_class: _get_related_path(
+                    flow_class.task_class, self.model), flow_classes))
 
-        return self.filter(process__flow_class__in=flow_classes).select_related('process', *related)
+        return self.filter(
+            process__flow_class__in=flow_classes).select_related(
+            'process', *related)
 
     def user_queue(self, user, flow_class=None):
         """List of tasks of the flow_class permitted for user."""
@@ -203,9 +212,10 @@ class TaskQuerySet(QuerySet):
             queryset = queryset.filter(process__flow_class=flow_class)
 
         if not user.is_superuser:
-            has_permission = Q(owner_permission__in=user.get_all_permissions()) \
-                | Q(owner_permission__isnull=True) \
-                | Q(owner=user)
+            has_permission = Q(
+                owner_permission__in=user.get_all_permissions()) | Q(
+                owner_permission__isnull=True) | Q(
+                owner=user)
 
             queryset = queryset.filter(has_permission)
 
@@ -225,7 +235,8 @@ class TaskQuerySet(QuerySet):
 
     def filter_available(self, flow_classes, user):
         """List of tasks available to view for the user."""
-        return self.model.objects.coerce_for(_available_flows(flow_classes, user))
+        return self.model.objects.coerce_for(
+            _available_flows(flow_classes, user))
 
     def inbox(self, flow_classes, user):
         """List of tasks assigned to the user."""
@@ -266,7 +277,8 @@ class TaskQuerySet(QuerySet):
         if getattr(self, '_coerced', False):
             for task in base_iterator:
                 if isinstance(task, self.model):
-                    task = coerce_to_related_instance(task, task.flow_task.flow_class.task_class)
+                    task = coerce_to_related_instance(
+                        task, task.flow_task.flow_class.task_class)
                 yield task
         else:
             for task in base_iterator:

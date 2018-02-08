@@ -35,8 +35,10 @@ class Test(TestCase):
         # Node interlinks are resolved
         self.assertEqual(TestFlow.start._next, TestFlow.end)
         self.assertEqual([x.src for x in TestFlow.start._incoming()], [])
-        self.assertEqual([x.dst for x in TestFlow.start._outgoing()], [TestFlow.end])
-        self.assertEqual([x.src for x in TestFlow.end._incoming()], [TestFlow.start])
+        self.assertEqual(
+            [x.dst for x in TestFlow.start._outgoing()], [TestFlow.end])
+        self.assertEqual(
+            [x.src for x in TestFlow.end._incoming()], [TestFlow.start])
         self.assertEqual([x.dst for x in TestFlow.end._outgoing()], [])
 
         # Process documentation

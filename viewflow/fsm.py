@@ -33,7 +33,8 @@ class TransitionMethod(object):
 
     def can_proceed(self, check_conditions=True):
         """Check is transition available."""
-        return self.descriptor.can_proceed(self.instance, check_conditions=check_conditions)
+        return self.descriptor.can_proceed(
+            self.instance, check_conditions=check_conditions)
 
     def original(self, *args, **kwargs):
         """Call the unwrapped class method."""
@@ -100,17 +101,20 @@ class TransitionDescriptor(object):
         transition = self.get_transition(current_state, instance)
 
         if transition is None:
-            raise TransitionNotAllowed('No transition from {0}'.format(current_state))
+            raise TransitionNotAllowed(
+                'No transition from {0}'.format(current_state))
 
         if not transition.conditions_met(instance):
-            raise TransitionNotAllowed("Transition conditions have not been met for method '{0}'".format(self.name))
+            raise TransitionNotAllowed(
+                "Transition conditions have not been met for method '{0}'".format(
+                    self.name))
 
         if transition.target:
             self.state.set(instance, transition.target)
 
         try:
             result = self.func(instance, *args, **kwargs)
-        except:
+        except BaseException:
             self.state.set(instance, transition.source)
             raise
         else:
@@ -131,7 +135,9 @@ class SuperTransitionDescriptor(TransitionDescriptor):
                 if not isinstance(super_descriptor, SuperTransitionDescriptor):
                     break
         else:
-            raise ValueError('Base transition not found for {}'.format(self.name))
+            raise ValueError(
+                'Base transition not found for {}'.format(
+                    self.name))
 
         return super_descriptor
 
@@ -148,7 +154,8 @@ class SuperTransitionDescriptor(TransitionDescriptor):
     def can_proceed(self, instance, check_conditions=True):
         """Check is transition available."""
         descriptor = self.get_descriptor(instance)
-        return descriptor.can_proceed(instance, check_conditions=check_conditions)
+        return descriptor.can_proceed(
+            instance, check_conditions=check_conditions)
 
     def __call__(self, instance, *args, **kwargs):
         """Perform the transition."""
@@ -157,17 +164,20 @@ class SuperTransitionDescriptor(TransitionDescriptor):
         transition = descriptor.get_transition(current_state, instance)
 
         if transition is None:
-            raise TransitionNotAllowed('No transition from {0}'.format(current_state))
+            raise TransitionNotAllowed(
+                'No transition from {0}'.format(current_state))
 
         if not transition.conditions_met(instance):
-            raise TransitionNotAllowed("Transition conditions have not been met for method '{0}'".format(self.name))
+            raise TransitionNotAllowed(
+                "Transition conditions have not been met for method '{0}'".format(
+                    self.name))
 
         if transition.target:
             self.state.set(instance, transition.target)
 
         try:
             result = self.func(instance, *args, **kwargs)
-        except:
+        except BaseException:
             self.state.set(instance, transition.source)
             raise
         else:
@@ -223,7 +233,8 @@ class State(object):
                 source_list = [source]
 
             for src in source_list:
-                field_transition = Transition(source=src, target=target, conditions=conditions)
+                field_transition = Transition(
+                    source=src, target=target, conditions=conditions)
                 transition_wrapper.add_transition(field_transition)
 
             return transition_wrapper
@@ -253,20 +264,28 @@ class State(object):
 
     def get_available_transitions(self, instance):
         """List of transitions available from the current state."""
-        transitions_cache = instance.__class__.__dict__.get('_transitions{}'.format(self.propname), None)
+        transitions_cache = instance.__class__.__dict__.get(
+            '_transitions{}'.format(self.propname), None)
         if transitions_cache is None:
             transitions_cache = {}
-            descriptors = inspect.getmembers(instance.__class__, lambda attr: isinstance(attr, TransitionDescriptor))
+            descriptors = inspect.getmembers(
+                instance.__class__, lambda attr: isinstance(
+                    attr, TransitionDescriptor))
             for method_name, descriptor in descriptors:
-                for source, transition in descriptor.get_transitions(instance).items():
+                for source, transition in descriptor.get_transitions(
+                        instance).items():
                     if source not in transitions_cache:
                         transitions_cache[source] = []
                     transitions_cache[source].append(descriptor)
 
-            setattr(instance.__class__, '_transitions{}'.format(self.propname), transitions_cache)
+            setattr(
+                instance.__class__,
+                '_transitions{}'.format(
+                    self.propname),
+                transitions_cache)
 
-        result = [descriptor for descriptor in transitions_cache.get(self.get(instance), [])
-                  if descriptor.can_proceed(instance)]
+        result = [descriptor for descriptor in transitions_cache.get(
+            self.get(instance), []) if descriptor.can_proceed(instance)]
         result += [descriptor for descriptor in transitions_cache.get('*', [])
                    if descriptor.can_proceed(instance)]
         return result

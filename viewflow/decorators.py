@@ -20,7 +20,7 @@ def flow_start_func(func):
                 activation = flow_task.activation_class()
                 activation.initialize(flow_task, None)
                 return func(activation, *args, **kwargs)
-            except:
+            except BaseException:
                 exc = False
                 if activation.lock:
                     activation.lock.__exit__(*sys.exc_info())
@@ -46,7 +46,8 @@ def flow_func(func):
 
         lock = flow_class.lock_impl(flow_class.instance)
         with lock(flow_class, task.process_id):
-            task = flow_class.task_class._default_manager.get(pk=task.pk, process_id=task.process_id)
+            task = flow_class.task_class._default_manager.get(
+                pk=task.pk, process_id=task.process_id)
             activation = flow_task.activation_class()
             activation.initialize(flow_task, task)
             return func(activation, *args, **kwargs)
@@ -69,8 +70,10 @@ def flow_job(func):
     """
     @functools.wraps(func)
     def _wrapper(*args, **kwargs):
-        flow_task_strref = kwargs.pop('flow_task_strref') if 'flow_task_strref' in kwargs else args[0]
-        process_pk = kwargs.pop('process_pk') if 'process_pk' in kwargs else args[1]
+        flow_task_strref = kwargs.pop(
+            'flow_task_strref') if 'flow_task_strref' in kwargs else args[0]
+        process_pk = kwargs.pop(
+            'process_pk') if 'process_pk' in kwargs else args[1]
         task_pk = kwargs.pop('task_pk') if 'task_pk' in kwargs else args[2]
         flow_task = import_task_by_ref(flow_task_strref)
 
@@ -79,7 +82,8 @@ def flow_job(func):
         # start
         with transaction.atomic(), lock(flow_task.flow_class, process_pk):
             try:
-                task = flow_task.flow_class.task_class.objects.get(pk=task_pk, process_id=process_pk)
+                task = flow_task.flow_class.task_class.objects.get(
+                    pk=task_pk, process_id=process_pk)
                 if task.status == STATUS.CANCELED:
                     return
             except flow_task.flow_class.task_class.DoesNotExist:
@@ -100,15 +104,19 @@ def flow_job(func):
         except Exception as exc:
             # mark as error
             with transaction.atomic(), lock(flow_task.flow_class, process_pk):
-                task = flow_task.flow_class.task_class.objects.get(pk=task_pk, process_id=process_pk)
+                task = flow_task.flow_class.task_class.objects.get(
+                    pk=task_pk, process_id=process_pk)
                 activation = flow_task.activation_class()
                 activation.initialize(flow_task, task)
-                activation.error(comments="{}\n{}".format(exc, traceback.format_exc()))
+                activation.error(
+                    comments="{}\n{}".format(
+                        exc, traceback.format_exc()))
             raise
         else:
             # mark as done
             with transaction.atomic(), lock(flow_task.flow_class, process_pk):
-                task = flow_task.flow_class.task_class.objects.get(pk=task_pk, process_id=process_pk)
+                task = flow_task.flow_class.task_class.objects.get(
+                    pk=task_pk, process_id=process_pk)
                 activation = flow_task.activation_class()
                 activation.initialize(flow_task, task)
                 activation.done()
@@ -128,8 +136,11 @@ def flow_start_signal(handler):
             try:
                 activation = flow_task.activation_class()
                 activation.initialize(flow_task, None)
-                return handler(sender=sender, activation=activation, **signal_kwargs)
-            except:
+                return handler(
+                    sender=sender,
+                    activation=activation,
+                    **signal_kwargs)
+            except BaseException:
                 exc = False
                 if activation.lock:
                     activation.lock.__exit__(*sys.exc_info())
@@ -151,10 +162,14 @@ def flow_signal(handler):
 
         lock = flow_class.lock_impl(flow_class.instance)
         with lock(flow_class, task.process_id):
-            task = flow_class.task_class._default_manager.get(pk=task.pk, process_id=task.process_id)
+            task = flow_class.task_class._default_manager.get(
+                pk=task.pk, process_id=task.process_id)
             activation = flow_task.activation_class()
             activation.initialize(flow_task, task)
-            return handler(sender=sender, activation=activation, **signal_kwargs)
+            return handler(
+                sender=sender,
+                activation=activation,
+                **signal_kwargs)
     return _wrapper
 
 
@@ -178,7 +193,7 @@ def flow_start_view(view):
                 request.process = activation.process
                 request.task = activation.task
                 return view(request, **kwargs)
-            except:
+            except BaseException:
                 exc = False
                 if activation.lock:
                     activation.lock.__exit__(*sys.exc_info())
@@ -199,10 +214,19 @@ def flow_view(view):
     """
     @transaction.atomic
     @functools.wraps(view)
-    def _wrapper(request, flow_class, flow_task, process_pk, task_pk, **kwargs):
+    def _wrapper(
+            request,
+            flow_class,
+            flow_task,
+            process_pk,
+            task_pk,
+            **kwargs):
         lock = flow_task.flow_class.lock_impl(flow_class.instance)
         with lock(flow_class, process_pk):
-            task = get_object_or_404(flow_task.flow_class.task_class._default_manager, pk=task_pk, process_id=process_pk)
+            task = get_object_or_404(
+                flow_task.flow_class.task_class._default_manager,
+                pk=task_pk,
+                process_id=process_pk)
             activation = flow_task.activation_class()
             activation.initialize(flow_task, task)
 

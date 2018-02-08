@@ -126,7 +126,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BROKER_URL = 'redis://localhost:6379/10'
 
 CELERY_IMPORTS = [
-    os.path.join(root, filename)[len(BASE_DIR)+1: -3].replace('/', '.')
+    os.path.join(root, filename)[len(BASE_DIR) + 1: -3].replace('/', '.')
     for root, dirs, files in os.walk(os.path.join(BASE_DIR, 'tests'))
     for filename in files
     if filename.startswith('test_') and filename.endswith('.py')]

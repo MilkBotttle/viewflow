@@ -83,13 +83,18 @@ class Test(TestCase):
             activation.done()
             return activation
 
-        flow_task = self.init_node(flow.Function(func_impl, task_loader=lambda flow_task: TaskStub(flow_task)))
+        flow_task = self.init_node(
+            flow.Function(
+                func_impl,
+                task_loader=lambda flow_task: TaskStub(flow_task)))
         act = flow_task.run()
         self.assertEqual(act.task.status, STATUS.DONE)
 
     def test_function_from_flow_method(self):
         class Flow(FlowStub):
-            func_task = flow.Function(this.task_func, task_loader=lambda flow_task: TaskStub(flow_task))
+            func_task = flow.Function(
+                this.task_func,
+                task_loader=lambda flow_task: TaskStub(flow_task))
             method_called = False
 
             @method_decorator(flow.flow_func)
@@ -100,7 +105,8 @@ class Test(TestCase):
                 return activation
 
         Flow.instance = Flow()
-        flow_task = self.init_node(Flow.func_task, flow_class=Flow, name='task')
+        flow_task = self.init_node(
+            Flow.func_task, flow_class=Flow, name='task')
 
         act = flow_task.run()
         self.assertEqual(act.task.status, STATUS.DONE)
@@ -160,7 +166,10 @@ class Test(TestCase):
                 Flow.method_called = True
 
         Flow.instance = Flow()
-        flow_task = self.init_node(Flow.handler_task, flow_class=Flow, name='task')
+        flow_task = self.init_node(
+            Flow.handler_task,
+            flow_class=Flow,
+            name='task')
 
         act = HandlerActivation()
         act.initialize(flow_task, TaskStub())

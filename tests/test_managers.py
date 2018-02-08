@@ -15,7 +15,9 @@ class Test(TestCase):
     maxDiff = None
 
     def test_process_queryset_filter_by_flowcls_succeed(self):
-        queryset = managers.ProcessQuerySet(model=Process).filter(flow_class=ChildFlow)
+        queryset = managers.ProcessQuerySet(
+            model=Process).filter(
+            flow_class=ChildFlow)
 
         self.assertEqual(str(queryset.query).strip(),
                          'SELECT "viewflow_process"."id", "viewflow_process"."flow_class", "viewflow_process"."status",'
@@ -24,7 +26,9 @@ class Test(TestCase):
                          ' ORDER BY "viewflow_process"."created" DESC')
 
     def test_process_queryset_cource_for_query(self):
-        queryset = managers.ProcessQuerySet(model=Process).coerce_for([ChildFlow])
+        queryset = managers.ProcessQuerySet(
+            model=Process).coerce_for(
+            [ChildFlow])
 
         self.assertEqual(
             sqlparse.format(str(queryset.query), reindent=True),
@@ -46,37 +50,52 @@ class Test(TestCase):
         process3 = GrandChildProcess.objects.create(flow_class=GrandChildFlow)
 
         with self.assertNumQueries(1):
-            queryset = managers.ProcessQuerySet(model=Process).coerce_for([GrandChildFlow, ChildFlow, Flow])
-            self.assertEqual(set(queryset), set([process1, process2, process3]))
+            queryset = managers.ProcessQuerySet(model=Process).coerce_for(
+                [GrandChildFlow, ChildFlow, Flow])
+            self.assertEqual(set(queryset), set(
+                [process1, process2, process3]))
 
     def test_process_queryset_cource_values_list(self):
         process = ChildProcess.objects.create(flow_class=ChildFlow)
 
-        queryset = managers.ProcessQuerySet(model=Process).coerce_for([ChildFlow]).values_list('id')
+        queryset = managers.ProcessQuerySet(
+            model=Process).coerce_for(
+            [ChildFlow]).values_list('id')
         self.assertEqual([(process.pk,)], list(queryset))
 
-    @unittest.skipIf(django.VERSION[:2] == (1, 10), reason='Django 1.10 have no support for prefetch with  custom iterable')
+    @unittest.skipIf(django.VERSION[:2] == (
+        1, 10), reason='Django 1.10 have no support for prefetch with  custom iterable')
     def test_process_queryset_prefetch_related(self):
         process = ChildProcess.objects.create(flow_class=ChildFlow)
 
         # process -> participatns
         queryset = (
-            managers.ProcessQuerySet(model=Process)
-            .coerce_for([ChildFlow])
-            .prefetch_related(Prefetch('participants', queryset=User.objects.filter(is_staff=True)))
-        )
+            managers.ProcessQuerySet(
+                model=Process) .coerce_for(
+                [ChildFlow]) .prefetch_related(
+                Prefetch(
+                    'participants',
+                    queryset=User.objects.filter(
+                        is_staff=True))))
         self.assertEqual([process], list(queryset))
-        self.assertEqual([], list(queryset[0].participants.filter(is_staff=True)))
+        self.assertEqual(
+            [], list(
+                queryset[0].participants.filter(
+                    is_staff=True)))
 
         # participants -> processes
         queryset = (
-            User.objects.filter(is_staff=True)
-            .prefetch_related(Prefetch('childprocess', queryset=ChildProcess.objects.all()))
-        )
+            User.objects.filter(
+                is_staff=True) .prefetch_related(
+                Prefetch(
+                    'childprocess',
+                    queryset=ChildProcess.objects.all())))
         self.assertEqual([], list(queryset))
 
     def test_task_queryset_filter_by_flowcls_succeed(self):
-        queryset = managers.TaskQuerySet(model=Task).filter(flow_task=ChildFlow.start)
+        queryset = managers.TaskQuerySet(
+            model=Task).filter(
+            flow_task=ChildFlow.start)
 
         self.assertEqual(str(queryset.query).strip(),
                          'SELECT "viewflow_task"."id", "viewflow_task"."flow_task", "viewflow_task"."flow_task_type",'
@@ -113,18 +132,25 @@ class Test(TestCase):
         process1 = ChildProcess.objects.create(flow_class=ChildFlow)
         process2 = GrandChildProcess.objects.create(flow_class=GrandChildFlow)
 
-        task1 = ChildTask.objects.create(process=process1, flow_task=ChildFlow.start)
-        task2 = Task.objects.create(process=process2, flow_task=GrandChildFlow.start)
+        task1 = ChildTask.objects.create(
+            process=process1, flow_task=ChildFlow.start)
+        task2 = Task.objects.create(
+            process=process2,
+            flow_task=GrandChildFlow.start)
 
         with self.assertNumQueries(1):
-            queryset = managers.TaskQuerySet(model=Task).coerce_for([GrandChildFlow, ChildFlow])
+            queryset = managers.TaskQuerySet(
+                model=Task).coerce_for([GrandChildFlow, ChildFlow])
             self.assertEqual(set(queryset), set([task1, task2]))
 
     def test_task_queryset_cource_values_list(self):
         process = ChildProcess.objects.create(flow_class=ChildFlow)
-        task = ChildTask.objects.create(process=process, flow_task=ChildFlow.start)
+        task = ChildTask.objects.create(
+            process=process, flow_task=ChildFlow.start)
 
-        queryset = managers.TaskQuerySet(model=Task).coerce_for([ChildFlow]).values_list('id')
+        queryset = managers.TaskQuerySet(
+            model=Task).coerce_for(
+            [ChildFlow]).values_list('id')
         self.assertEqual([(task.pk,)], list(queryset))
 
 

@@ -15,7 +15,12 @@ class InsuranceAdmin(admin.ModelAdmin):
 
 class ShipmentAdmin(admin.ModelAdmin):
     icon = '<i class="material-icons">shopping_cart</i>'
-    list_display = ['shipment_no', 'carrier', 'carrier_quote', 'insurance', 'package_tag']
+    list_display = [
+        'shipment_no',
+        'carrier',
+        'carrier_quote',
+        'insurance',
+        'package_tag']
 
 
 admin.site.register(models.Carrier, CarrierAdmin)

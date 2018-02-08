@@ -41,7 +41,8 @@ class ProcessAdmin(admin.ModelAdmin):
         user_ids = obj.task_set.exclude(owner__isnull=True).values('owner')
         USER_MODEL = auth.get_user_model()
         username_field = USER_MODEL.USERNAME_FIELD
-        users = USER_MODEL._default_manager.filter(pk__in=user_ids).values_list(username_field)
+        users = USER_MODEL._default_manager.filter(
+            pk__in=user_ids).values_list(username_field)
         return ', '.join(user[0] for user in users)
 
 
@@ -57,7 +58,14 @@ class TaskAdmin(admin.ModelAdmin):
                     'started', 'finished']
     list_display_links = ['pk', 'created', 'process']
     list_filter = ['status']
-    readonly_fields = ['process', 'status', 'flow_task', 'started', 'finished', 'previous', 'token']
+    readonly_fields = [
+        'process',
+        'status',
+        'flow_task',
+        'started',
+        'finished',
+        'previous',
+        'token']
 
     def has_add_permission(self, request):
         """Disable manually task creation."""

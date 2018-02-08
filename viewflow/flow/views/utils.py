@@ -12,18 +12,20 @@ def get_next_task_url(request, process):
         # Try to find next task available for the user
         task_class = process.flow_class.task_class
 
-        user_tasks = task_class._default_manager \
-            .filter(process=process, owner=request.user, status=activation.STATUS.ASSIGNED)
+        user_tasks = task_class._default_manager .filter(
+            process=process, owner=request.user, status=activation.STATUS.ASSIGNED)
 
         if user_tasks.exists():
             task = user_tasks.first()
-            return task.flow_task.get_task_url(task, url_type='guess', user=request.user, namespace=namespace)
+            return task.flow_task.get_task_url(
+                task, url_type='guess', user=request.user, namespace=namespace)
         else:
             user_tasks = task_class._default_manager.user_queue(request.user)\
                 .filter(process=process, status=activation.STATUS.NEW)
             if user_tasks.exists():
                 task = user_tasks.first()
-                return task.flow_task.get_task_url(task, url_type='guess', user=request.user, namespace=namespace)
+                return task.flow_task.get_task_url(
+                    task, url_type='guess', user=request.user, namespace=namespace)
 
     elif 'back' in request.GET:
         # Back to task list

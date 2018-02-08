@@ -24,7 +24,9 @@ class SplitActivation(AbstractGateActivation):
                 self.next_tasks.append(node)
 
         if not self.next_tasks:
-            raise FlowRuntimeError('No next task available for {}'.format(self.flow_task.name))
+            raise FlowRuntimeError(
+                'No next task available for {}'.format(
+                    self.flow_task.name))
 
     @Activation.status.super()
     def activate_next(self):

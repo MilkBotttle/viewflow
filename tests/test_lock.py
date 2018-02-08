@@ -17,7 +17,8 @@ from viewflow.base import Flow, this
 from viewflow.exceptions import FlowLockFailed
 
 
-@unittest.skipUnless('DATABASE_URL' in os.environ, 'Lock test requires specific database config')
+@unittest.skipUnless('DATABASE_URL' in os.environ,
+                     'Lock test requires specific database config')
 class Test(TransactionTestCase):
     class TestFlow(Flow):
         start = flow.Start().Next(this.end)
@@ -26,7 +27,8 @@ class Test(TransactionTestCase):
     def setUp(self):
         self.finished = False
         self.locked = False
-        self.process = Test.TestFlow.process_class.objects.create(flow_class=Test.TestFlow)
+        self.process = Test.TestFlow.process_class.objects.create(
+            flow_class=Test.TestFlow)
         self.exception_queue = queue.Queue()
 
     def run_with_lock(self, lock_impl):
@@ -48,7 +50,11 @@ class Test(TransactionTestCase):
         finally:
             connection.close()
 
-    @unittest.skipIf(django.VERSION >= (1, 11), 'disabled due no migration run in dj 1.11+')
+    @unittest.skipIf(
+        django.VERSION >= (
+            1,
+            11),
+        'disabled due no migration run in dj 1.11+')
     @skipUnlessDBFeature('has_select_for_update')
     def test_select_for_update_locks(self):
         lock_impl = lock.SelectForUpdateLock(attempts=1)
@@ -68,7 +74,11 @@ class Test(TransactionTestCase):
         thread1.join()
         thread2.join()
 
-    @unittest.skipIf(django.VERSION >= (1, 11), 'disabled due no migration run in dj 1.11+')
+    @unittest.skipIf(
+        django.VERSION >= (
+            1,
+            11),
+        'disabled due no migration run in dj 1.11+')
     @skipUnlessDBFeature('has_select_for_update')
     def test_select_for_update_locks_released(self):
         lock_impl = lock.SelectForUpdateLock(attempts=4)
@@ -90,7 +100,11 @@ class Test(TransactionTestCase):
         except queue.Empty:
             pass
 
-    @unittest.skipIf(django.VERSION >= (1, 11), 'disabled due no migration run in dj 1.11+')
+    @unittest.skipIf(
+        django.VERSION >= (
+            1,
+            11),
+        'disabled due no migration run in dj 1.11+')
     @skipUnlessDBFeature('has_select_for_update')
     def test_select_for_update_lock_ignores_user_exceptions(self):
         """
@@ -105,7 +119,11 @@ class Test(TransactionTestCase):
         with self.assertRaises(DatabaseError):
             test_func()
 
-    @unittest.skipIf(django.VERSION >= (1, 11), 'disabled due no migration run in dj 1.11+')
+    @unittest.skipIf(
+        django.VERSION >= (
+            1,
+            11),
+        'disabled due no migration run in dj 1.11+')
     def test_cache_lock(self):
         lock_impl = lock.CacheLock(attempts=1)
         thread1 = threading.Thread(target=self.run_with_lock, args=[lock_impl])

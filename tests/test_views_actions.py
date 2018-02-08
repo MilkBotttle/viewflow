@@ -21,11 +21,15 @@ class Test(TestCase):
         request.user = User(username='test', is_superuser=True)
         request.resolver_match = resolve('/test/')
 
-        response = view(request, flow_class=ActionsTestFlow, process_pk=act.process.pk)
+        response = view(
+            request,
+            flow_class=ActionsTestFlow,
+            process_pk=act.process.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_actions/actionstest/process_cancel.html',
-                          'viewflow/flow/process_cancel.html'))
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_actions/actionstest/process_cancel.html',
+             'viewflow/flow/process_cancel.html'))
         self.assertEqual(response.context_data['process'], act.process)
 
         self.assertEqual(len(response.context_data['active_tasks']), 1)
@@ -36,12 +40,16 @@ class Test(TestCase):
         request.user = User(username='test', is_superuser=True)
         request.resolver_match = resolve('/test/')
 
-        response = view(request, flow_class=ActionsTestFlow, process_pk=act.process.pk)
+        response = view(
+            request,
+            flow_class=ActionsTestFlow,
+            process_pk=act.process.pk)
         act.process.refresh_from_db()
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(act.process.status, STATUS.CANCELED)
-        canceled_task = act.process.get_task(ActionsTestFlow.task, status=[STATUS.CANCELED])
+        canceled_task = act.process.get_task(
+            ActionsTestFlow.task, status=[STATUS.CANCELED])
         self.assertIsNotNone(canceled_task.finished)
 
     def test_task_undo_view(self):
@@ -53,7 +61,9 @@ class Test(TestCase):
         act = task.activate()
         act.cancel()
 
-        start = act.process.get_task(ActionsTestFlow.start, status=[STATUS.DONE])
+        start = act.process.get_task(
+            ActionsTestFlow.start, status=[
+                STATUS.DONE])
 
         # get
         request = RequestFactory().get('/undo/')
@@ -61,16 +71,22 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.start,
-            process_pk=act.process.pk, task_pk=start.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.start,
+            process_pk=act.process.pk,
+            task_pk=start.pk)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_actions/actionstest/start_undo.html',
-                          'tests/test_views_actions/actionstest/task_undo.html',
-                          'viewflow/flow/task_undo.html',
-                          'viewflow/flow/task_action.html'))
-        self.assertEqual(response.context_data['activation'].process, act.process)
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_actions/actionstest/start_undo.html',
+             'tests/test_views_actions/actionstest/task_undo.html',
+             'viewflow/flow/task_undo.html',
+             'viewflow/flow/task_action.html'))
+        self.assertEqual(
+            response.context_data['activation'].process,
+            act.process)
 
         # post
         request = RequestFactory().post('/undo/', {'run_action': 1})
@@ -78,8 +94,11 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.start,
-            process_pk=act.process.pk, task_pk=start.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.start,
+            process_pk=act.process.pk,
+            task_pk=start.pk)
         start.refresh_from_db()
 
         self.assertEqual(response.status_code, 302)
@@ -98,16 +117,22 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.task,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_actions/actionstest/task_cancel.html',
-                          'tests/test_views_actions/actionstest/task_cancel.html',
-                          'viewflow/flow/task_cancel.html',
-                          'viewflow/flow/task_action.html'))
-        self.assertEqual(response.context_data['activation'].process, act.process)
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_actions/actionstest/task_cancel.html',
+             'tests/test_views_actions/actionstest/task_cancel.html',
+             'viewflow/flow/task_cancel.html',
+             'viewflow/flow/task_action.html'))
+        self.assertEqual(
+            response.context_data['activation'].process,
+            act.process)
 
         # post
         request = RequestFactory().post('/cancel/', {'run_action': 1})
@@ -115,8 +140,11 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.start,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.start,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         task.refresh_from_db()
 
         self.assertEqual(response.status_code, 302)
@@ -126,7 +154,9 @@ class Test(TestCase):
     def test_task_perform_view(self):
         act = ActionsTestFlow.start.run()
         view = views.PerformTaskView.as_view()
-        if_gate = Task.objects.create(process=act.process, flow_task=ActionsTestFlow.if_gate)
+        if_gate = Task.objects.create(
+            process=act.process,
+            flow_task=ActionsTestFlow.if_gate)
 
         # get
         request = RequestFactory().get('/perform/')
@@ -134,17 +164,23 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.if_gate,
-            process_pk=act.process.pk, task_pk=if_gate.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.if_gate,
+            process_pk=act.process.pk,
+            task_pk=if_gate.pk)
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_actions/actionstest/if_gate_execute.html',
-                          'tests/test_views_actions/actionstest/task_execute.html',
-                          'viewflow/flow/task_execute.html',
-                          'viewflow/flow/task_action.html'))
-        self.assertEqual(response.context_data['activation'].process, act.process)
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_actions/actionstest/if_gate_execute.html',
+             'tests/test_views_actions/actionstest/task_execute.html',
+             'viewflow/flow/task_execute.html',
+             'viewflow/flow/task_action.html'))
+        self.assertEqual(
+            response.context_data['activation'].process,
+            act.process)
 
         # post
         request = RequestFactory().post('/perform/', {'run_action': 1})
@@ -152,8 +188,11 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.if_gate,
-            process_pk=act.process.pk, task_pk=if_gate.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.if_gate,
+            process_pk=act.process.pk,
+            task_pk=if_gate.pk)
         if_gate.refresh_from_db()
         if_gate.process.refresh_from_db()
 
@@ -175,17 +214,23 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.task,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_actions/actionstest/task_activate_next.html',
-                          'tests/test_views_actions/actionstest/task_activate_next.html',
-                          'viewflow/flow/task_activate_next.html',
-                          'viewflow/flow/task_action.html'))
-        self.assertEqual(response.context_data['activation'].process, act.process)
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_actions/actionstest/task_activate_next.html',
+             'tests/test_views_actions/actionstest/task_activate_next.html',
+             'viewflow/flow/task_activate_next.html',
+             'viewflow/flow/task_action.html'))
+        self.assertEqual(
+            response.context_data['activation'].process,
+            act.process)
 
         # post
         request = RequestFactory().post('/activate_next/', {'run_action': 1})
@@ -193,8 +238,11 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.task,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         task.refresh_from_db()
         task.process.refresh_from_db()
 
@@ -216,17 +264,23 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.task,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.template_name,
-                         ('tests/test_views_actions/actionstest/task_unassign.html',
-                          'tests/test_views_actions/actionstest/task_unassign.html',
-                          'viewflow/flow/task_unassign.html',
-                          'viewflow/flow/task_action.html'))
-        self.assertEqual(response.context_data['activation'].process, act.process)
+        self.assertEqual(
+            response.template_name,
+            ('tests/test_views_actions/actionstest/task_unassign.html',
+             'tests/test_views_actions/actionstest/task_unassign.html',
+             'viewflow/flow/task_unassign.html',
+             'viewflow/flow/task_action.html'))
+        self.assertEqual(
+            response.context_data['activation'].process,
+            act.process)
 
         # post
         request = RequestFactory().post('/unassign/', {'run_action': 1})
@@ -234,8 +288,11 @@ class Test(TestCase):
         request.resolver_match = resolve('/test/')
 
         response = view(
-            request, flow_class=ActionsTestFlow, flow_task=ActionsTestFlow.task,
-            process_pk=act.process.pk, task_pk=task.pk)
+            request,
+            flow_class=ActionsTestFlow,
+            flow_task=ActionsTestFlow.task,
+            process_pk=act.process.pk,
+            task_pk=task.pk)
         task.refresh_from_db()
         task.process.refresh_from_db()
 

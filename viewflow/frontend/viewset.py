@@ -88,7 +88,8 @@ class FrontendViewSet(object):
     archive_view_class = views.AllArchiveListView
 
     def get_archive_view(self):
-        return self.archive_view_class.as_view(**self.get_archive_view_kwargs())
+        return self.archive_view_class.as_view(
+            **self.get_archive_view_kwargs())
 
     def get_archive_view_kwargs(self, **kwargs):
         return self.filter_kwargs(self.archive_view_class, **kwargs)
@@ -144,7 +145,8 @@ class FrontendViewSet(object):
     def collect_flows_urls(self):
         result = []
 
-        items = sorted(self.registry.items(), key=lambda item: item[0]._meta.app_label)
+        items = sorted(self.registry.items(),
+                       key=lambda item: item[0]._meta.app_label)
         app_flows = itertools.groupby(
             items, lambda item: item[0]._meta.app_label)
 
@@ -152,9 +154,8 @@ class FrontendViewSet(object):
             app_views = []
             for flow_class, flow_router in items:
                 flow_label = flow_class._meta.flow_label
-                app_views.append(
-                    url('^{}/'.format(flow_label), include((flow_router.urls, flow_label)))
-                )
+                app_views.append(url('^{}/'.format(flow_label),
+                                     include((flow_router.urls, flow_label))))
 
             result.append(
                 url('^{}/'.format(app_label), include((app_views, app_label)))

@@ -16,16 +16,22 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='helloworldprocess',
-            options={'verbose_name': 'World Request', 'verbose_name_plural': 'World Requests'},
+            options={
+                'verbose_name': 'World Request',
+                'verbose_name_plural': 'World Requests'},
         ),
         migrations.AlterField(
             model_name='helloworldprocess',
             name='approved',
-            field=models.BooleanField(default=False, verbose_name='Approved'),
+            field=models.BooleanField(
+                default=False,
+                verbose_name='Approved'),
         ),
         migrations.AlterField(
             model_name='helloworldprocess',
             name='text',
-            field=models.CharField(verbose_name='Message', max_length=50),
+            field=models.CharField(
+                verbose_name='Message',
+                max_length=50),
         ),
     ]

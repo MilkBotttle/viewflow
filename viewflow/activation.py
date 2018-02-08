@@ -48,7 +48,8 @@ _context_stack = threading.local()
 
 def all_leading_canceled(activation):
     """Condition to check that there are no outgoing tasks or all of them was canceled."""
-    non_canceled_count = activation.task.leading.exclude(status=STATUS.CANCELED).count()
+    non_canceled_count = activation.task.leading.exclude(
+        status=STATUS.CANCELED).count()
     return non_canceled_count == 0
 
 
@@ -169,11 +170,15 @@ class Activation(object):
                     yield
             except Exception as exc:
                 if not context.propagate_exception:
-                    self.task.comments = "{}\n{}".format(exc, traceback.format_exc())
+                    self.task.comments = "{}\n{}".format(
+                        exc, traceback.format_exc())
                     self.task.finished = now()
                     self.set_status(STATUS.ERROR)
                     self.task.save()
-                    signals.task_failed.send(sender=self.flow_class, process=self.process, task=self.task)
+                    signals.task_failed.send(
+                        sender=self.flow_class,
+                        process=self.process,
+                        task=self.task)
                 else:
                     raise
         return guard()
@@ -188,7 +193,10 @@ class Activation(object):
             pk=task.process_id)
         self.task = task
 
-    @status.transition(source=STATUS.DONE, target=STATUS.NEW, conditions=[all_leading_canceled])
+    @status.transition(
+        source=STATUS.DONE,
+        target=STATUS.NEW,
+        conditions=[all_leading_canceled])
     def undo(self):
         """
         Undo the task.
@@ -241,7 +249,8 @@ class StartActivation(Activation):
         if task:
             self.process, self.task = task.flow_process, task
         else:
-            self.process = self.flow_class.process_class(flow_class=self.flow_class)
+            self.process = self.flow_class.process_class(
+                flow_class=self.flow_class)
             self.task = self.flow_class.task_class(flow_task=self.flow_task)
 
     @Activation.status.transition(source=STATUS.NEW, target=STATUS.PREPARED)
@@ -270,7 +279,10 @@ class StartActivation(Activation):
 
         """
         with transaction.atomic(savepoint=True):
-            signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_started.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.process.save()
 
@@ -282,18 +294,30 @@ class StartActivation(Activation):
             self.task.finished = now()
             self.task.save()
 
-            signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
-            signals.flow_started.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_finished.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
+            signals.flow_started.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.activate_next()
 
-    @Activation.status.transition(source=STATUS.DONE, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        conditions=[all_leading_canceled])
     def activate_next(self):
         """Activate all outgoing edges."""
         if self.flow_task._next:
-            self.flow_task._next.activate(prev_activation=self, token=self.task.token)
+            self.flow_task._next.activate(
+                prev_activation=self, token=self.task.token)
 
-    @Activation.status.transition(source=STATUS.DONE, target=STATUS.CANCELED, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        target=STATUS.CANCELED,
+        conditions=[all_leading_canceled])
     def undo(self):
         """Undo the task."""
         self.process.status = STATUS.CANCELED
@@ -353,7 +377,9 @@ class ViewActivation(Activation):
             self.task.owner = user
         self.task.save()
 
-    @Activation.status.transition(source=STATUS.ASSIGNED, target=STATUS.PREPARED)
+    @Activation.status.transition(
+        source=STATUS.ASSIGNED,
+        target=STATUS.PREPARED)
     def prepare(self):
         """
         Initialize start task for execution.
@@ -374,12 +400,18 @@ class ViewActivation(Activation):
         .. seealso::
             :data:`viewflow.signals.task_finished`
         """
-        signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_started.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
         self.task.finished = now()
         self.task.save()
 
-        signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_finished.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
         self.activate_next()
 
@@ -389,11 +421,14 @@ class ViewActivation(Activation):
         self.task.owner = None
         super(ViewActivation, self).undo.original()
 
-    @Activation.status.transition(source=STATUS.DONE, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        conditions=[all_leading_canceled])
     def activate_next(self):
         """Activate all outgoing edges."""
         if self.flow_task._next:
-            self.flow_task._next.activate(prev_activation=self, token=self.task.token)
+            self.flow_task._next.activate(
+                prev_activation=self, token=self.task.token)
 
     @classmethod
     def create_task(cls, flow_task, prev_activation, token):
@@ -429,7 +464,10 @@ class FuncActivation(Activation):
         """Set the task.started time."""
         if self.task.started is None:
             self.task.started = now()
-        signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_started.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
     @Activation.status.transition(source=STATUS.PREPARED, target=STATUS.DONE)
     def done(self):
@@ -437,15 +475,21 @@ class FuncActivation(Activation):
         self.task.finished = now()
         self.task.save()
 
-        signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_finished.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
         self.activate_next()
 
-    @Activation.status.transition(source=STATUS.DONE, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        conditions=[all_leading_canceled])
     def activate_next(self):
         """Activate all outgoing edges."""
         if self.flow_task._next:
-            self.flow_task._next.activate(prev_activation=self, token=self.task.token)
+            self.flow_task._next.activate(
+                prev_activation=self, token=self.task.token)
 
     @classmethod
     def activate(cls, flow_task, prev_activation, token):
@@ -488,7 +532,9 @@ class AbstractGateActivation(Activation):
         """Calculate next tasks for activation."""
         raise NotImplementedError
 
-    @Activation.status.transition(source=STATUS.DONE, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        conditions=[all_leading_canceled])
     def activate_next(self):
         """Activate next tasks."""
         raise NotImplementedError
@@ -512,7 +558,10 @@ class AbstractGateActivation(Activation):
             self.task.started = now()
             self.task.save()
 
-            signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_started.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.calculate_next()
 
@@ -520,7 +569,10 @@ class AbstractGateActivation(Activation):
             self.set_status(STATUS.DONE)
             self.task.save()
 
-            signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_finished.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             self.activate_next()
 
@@ -617,7 +669,9 @@ class AbstractJobActivation(Activation):
             self.set_status(STATUS.SCHEDULED)
             self.task.save()
 
-    @Activation.status.transition(source=STATUS.SCHEDULED, target=STATUS.STARTED)
+    @Activation.status.transition(
+        source=STATUS.SCHEDULED,
+        target=STATUS.STARTED)
     def start(self):
         """
         Mark task as started.
@@ -628,15 +682,26 @@ class AbstractJobActivation(Activation):
         """
         self.task.started = now()
         self.task.save()
-        signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_started.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
-    @Activation.status.transition(source=[STATUS.SCHEDULED, STATUS.STARTED, STATUS.ERROR], target=STATUS.STARTED)
+    @Activation.status.transition(
+        source=[
+            STATUS.SCHEDULED,
+            STATUS.STARTED,
+            STATUS.ERROR],
+        target=STATUS.STARTED)
     def restart(self):
         """Restart the task excecution after error."""
         if not self.task.started:
             self.task.started = now()
         self.task.save()
-        signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_started.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
     @Activation.status.transition(source=STATUS.STARTED, target=STATUS.DONE)
     def done(self):
@@ -651,7 +716,10 @@ class AbstractJobActivation(Activation):
         self.set_status(STATUS.DONE)
         self.task.save()
 
-        signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_finished.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
         self.activate_next()
 
@@ -667,9 +735,16 @@ class AbstractJobActivation(Activation):
         self.task.comments = comments
         self.task.finished = now()
         self.task.save()
-        signals.task_failed.send(sender=self.flow_class, process=self.process, task=self.task)
+        signals.task_failed.send(
+            sender=self.flow_class,
+            process=self.process,
+            task=self.task)
 
-    @Activation.status.transition(source=[STATUS.SCHEDULED, STATUS.STARTED, STATUS.ERROR])
+    @Activation.status.transition(
+        source=[
+            STATUS.SCHEDULED,
+            STATUS.STARTED,
+            STATUS.ERROR])
     def retry(self):
         """Put the task into schedule again."""
         self.schedule.original()
@@ -681,15 +756,22 @@ class AbstractJobActivation(Activation):
         """Undo the task."""
         super(AbstractJobActivation, self).undo.original()
 
-    @Activation.status.transition(source=[STATUS.NEW, STATUS.ASSIGNED], target=STATUS.CANCELED)
+    @Activation.status.transition(
+        source=[
+            STATUS.NEW,
+            STATUS.ASSIGNED],
+        target=STATUS.CANCELED)
     def cancel(self):
         """Cancel existing task."""
         super(AbstractJobActivation, self).cancel.original()
 
-    @Activation.status.transition(source=STATUS.DONE, conditions=[all_leading_canceled])
+    @Activation.status.transition(
+        source=STATUS.DONE,
+        conditions=[all_leading_canceled])
     def activate_next(self):
         """Activate all outgoing edges."""
-        self.flow_task._next.activate(prev_activation=self, token=self.task.token)
+        self.flow_task._next.activate(
+            prev_activation=self, token=self.task.token)
 
     @classmethod
     def activate(cls, flow_task, prev_activation, token):
@@ -752,7 +834,10 @@ class EndActivation(Activation):
             self.task.started = now()
             self.task.save()
 
-            signals.task_started.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_started.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
             for task in self.process.active_tasks():
                 if task != self.task:
@@ -765,8 +850,14 @@ class EndActivation(Activation):
             self.task.finished = now()
             self.task.save()
 
-            signals.task_finished.send(sender=self.flow_class, process=self.process, task=self.task)
-            signals.flow_finished.send(sender=self.flow_class, process=self.process, task=self.task)
+            signals.task_finished.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
+            signals.flow_finished.send(
+                sender=self.flow_class,
+                process=self.process,
+                task=self.task)
 
     @Activation.status.super()
     def undo(self):

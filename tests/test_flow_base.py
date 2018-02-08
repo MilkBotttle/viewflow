@@ -21,7 +21,8 @@ class Test(TestCase):
     def test_this_owner(self):
         this = This()
         user = User.objects.create(username='testowner')
-        process = TestFlowBaseFlow.process_class.objects.create(flow_class=TestFlowBaseFlow)
+        process = TestFlowBaseFlow.process_class.objects.create(
+            flow_class=TestFlowBaseFlow)
 
         task = TestFlowBaseFlow.task_class.objects.create(
             process=process, flow_task=TestFlowBaseFlow.start,
@@ -59,7 +60,9 @@ class Test(TestCase):
         self.assertEqual(flow_task.task_description, dedent('''
             Docstrings from views are extracted to be a documentation
             for the task node''').strip())
-        self.assertEqual(flow_task.task_result_summary, 'Summary for the completed task')
+        self.assertEqual(
+            flow_task.task_result_summary,
+            'Summary for the completed task')
 
     def test_task_description_mixin_kwargs(self):
         flow_task = flow.End(
@@ -69,7 +72,9 @@ class Test(TestCase):
 
         self.assertEqual(flow_task.task_title, 'Test Task')
         self.assertEqual(flow_task.task_description, 'Task Description')
-        self.assertEqual(flow_task.task_result_summary, 'Summary for the completed task')
+        self.assertEqual(
+            flow_task.task_result_summary,
+            'Summary for the completed task')
 
 
 class TestFlowBaseProcess(Process):

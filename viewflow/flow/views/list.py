@@ -34,7 +34,8 @@ class AllTaskListView(LoginRequiredMixin, FlowListMixin, generic.ListView):
 
     def get_queryset(self):
         """Filtered task list."""
-        return models.Task.objects.inbox(self.flows, self.request.user).order_by('-created')
+        return models.Task.objects.inbox(
+            self.flows, self.request.user).order_by('-created')
 
 
 class AllQueueListView(LoginRequiredMixin, FlowListMixin, generic.ListView):
@@ -47,7 +48,8 @@ class AllQueueListView(LoginRequiredMixin, FlowListMixin, generic.ListView):
 
     def get_queryset(self):
         """Filtered task list."""
-        return models.Task.objects.queue(self.flows, self.request.user).order_by('-created')
+        return models.Task.objects.queue(
+            self.flows, self.request.user).order_by('-created')
 
 
 class AllArchiveListView(LoginRequiredMixin, FlowListMixin, generic.ListView):
@@ -60,7 +62,8 @@ class AllArchiveListView(LoginRequiredMixin, FlowListMixin, generic.ListView):
 
     def get_queryset(self):
         """All tasks from all processes assigned to the current user."""
-        return models.Task.objects.archive(self.flows, self.request.user).order_by('-created')
+        return models.Task.objects.archive(
+            self.flows, self.request.user).order_by('-created')
 
 
 class ProcessListView(FlowViewPermissionMixin, generic.ListView):
@@ -81,9 +84,8 @@ class ProcessListView(FlowViewPermissionMixin, generic.ListView):
         if self.template_name is None:
             opts = self.flow_class._meta
 
-            return (
-                '{}/{}/process_list.html'.format(opts.app_label, opts.flow_label),
-                'viewflow/flow/process_list.html')
+            return ('{}/{}/process_list.html'.format(opts.app_label,
+                                                     opts.flow_label), 'viewflow/flow/process_list.html')
         else:
             return [self.template_name]
 
@@ -159,8 +161,9 @@ class QueueListView(FlowViewPermissionMixin, generic.ListView):
 
     def get_queryset(self):
         """List of unassigned tasks available for current user."""
-        queryset = self.flow_class.task_class.objects.user_queue(self.request.user, flow_class=self.flow_class) \
-            .filter(status=activation.STATUS.NEW).order_by('-created')
+        queryset = self.flow_class.task_class.objects.user_queue(
+            self.request.user, flow_class=self.flow_class) .filter(
+            status=activation.STATUS.NEW).order_by('-created')
 
         return queryset
 

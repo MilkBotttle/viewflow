@@ -7,7 +7,12 @@ from django.db import DEFAULT_DB_ALIAS, router
 from django.db.models.signals import pre_migrate, post_migrate
 
 
-def create_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_DB_ALIAS, **kwargs):
+def create_permissions(
+        app_config,
+        verbosity=2,
+        interactive=True,
+        using=DEFAULT_DB_ALIAS,
+        **kwargs):
     """Create permissions on django 1.10+."""
     if not app_config.models_module:
         return
@@ -58,6 +63,10 @@ def import_flows(app_config, **kwargs):
         pass
 
 
-pre_migrate.connect(import_flows, dispatch_uid="viewflow.management.import_flows")
+pre_migrate.connect(
+    import_flows,
+    dispatch_uid="viewflow.management.import_flows")
 if django.VERSION >= (1, 10):
-    post_migrate.connect(create_permissions, dispatch_uid="viewflow.management.create_permissions")
+    post_migrate.connect(
+        create_permissions,
+        dispatch_uid="viewflow.management.create_permissions")

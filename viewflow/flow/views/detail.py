@@ -47,7 +47,8 @@ class DetailTaskView(generic.TemplateView):
         """Check permissions and show task detail."""
         self.activation = request.activation
 
-        if not self.activation.flow_task.can_view(request.user, self.activation.task):
+        if not self.activation.flow_task.can_view(
+                request.user, self.activation.task):
             raise PermissionDenied
         return super(DetailTaskView, self).dispatch(request, *args, **kwargs)
 
@@ -69,9 +70,8 @@ class DetailProcessView(FlowViewPermissionMixin, generic.DetailView):
         if self.template_name is None:
             opts = self.flow_class._meta
 
-            return (
-                '{}/{}/process_detail.html'.format(opts.app_label, opts.flow_label),
-                'viewflow/flow/process_detail.html')
+            return ('{}/{}/process_detail.html'.format(opts.app_label,
+                                                       opts.flow_label), 'viewflow/flow/process_detail.html')
         else:
             return [self.template_name]
 

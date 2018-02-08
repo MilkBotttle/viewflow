@@ -20,12 +20,14 @@ class Test(TestCase):
     def test_signal_ignore_activation(self):
         start_ignorable_test_signal.send(sender=self)
         process = SignalFlow.process_class.objects.get()
-        ignorable_test_signal.send(sender=self, process=process, ignore_me=True)
+        ignorable_test_signal.send(
+            sender=self, process=process, ignore_me=True)
 
         active_tasks = process.active_tasks()
         self.assertEqual(1, len(active_tasks))
 
-        ignorable_test_signal.send(sender=self, process=process, ignore_me=False)
+        ignorable_test_signal.send(
+            sender=self, process=process, ignore_me=False)
         tasks = process.task_set.all()
         self.assertEqual(3, tasks.count())
         self.assertTrue(all(task.finished is not None for task in tasks))

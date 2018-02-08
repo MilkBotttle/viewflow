@@ -48,7 +48,9 @@ class FlowMeta(object):
     @property
     def flow_label(self):
         """Unique flow label."""
-        module = "{}.{}".format(self.flow_class.__module__, self.flow_class.__name__)
+        module = "{}.{}".format(
+            self.flow_class.__module__,
+            self.flow_class.__name__)
         app_label, app_package = get_containing_app_data(module)
 
         subpath = module[len(app_package) + 1:]
@@ -101,7 +103,13 @@ class FlowMetaClass(type):
 
     def __new__(cls, class_name, bases, attrs):
         """Construct new flow class."""
-        new_class = super(FlowMetaClass, cls).__new__(cls, class_name, bases, attrs)
+        new_class = super(
+            FlowMetaClass,
+            cls).__new__(
+            cls,
+            class_name,
+            bases,
+            attrs)
 
         # singleton instance
         new_class.instance = FlowInstanceDescriptor()
@@ -151,8 +159,13 @@ class FlowMetaClass(type):
         else:
             if 'process_title' not in attrs:
                 # convert camel case to separate words
-                new_class.process_title = re.sub('([a-z0-9])([A-Z])', r'\1 \2',
-                                                 re.sub('(.)([A-Z][a-z]+)', r'\1 \2', class_name))
+                new_class.process_title = re.sub(
+                    '([a-z0-9])([A-Z])',
+                    r'\1 \2',
+                    re.sub(
+                        '(.)([A-Z][a-z]+)',
+                        r'\1 \2',
+                        class_name))
                 if new_class.process_title.endswith(' Flow'):
                     new_class.process_title = new_class.process_title[:-5]
 

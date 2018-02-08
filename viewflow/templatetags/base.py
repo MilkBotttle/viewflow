@@ -6,7 +6,6 @@ from django.contrib.auth import get_permission_codename
 from django.urls import reverse, NoReverseMatch
 
 
-
 def get_model_display_data(root_instance, user):
     """
     Return structure with model fields and related from same app.
@@ -48,13 +47,16 @@ def get_model_display_data(root_instance, user):
                     related = getattr(root, field.name)
                     if expand_required(related):
                         if root_instance._meta.app_label == related._meta.app_label:
-                            new_objects.append((field.verbose_name.title(), related))
+                            new_objects.append(
+                                (field.verbose_name.title(), related))
                         else:
                             value = getattr(root, field.name)
                             if value is not None:
-                                children.append((field.verbose_name.title(), value))
+                                children.append(
+                                    (field.verbose_name.title(), value))
             else:
-                choice_display_attr = "get_{}_display".format(field.get_attname())
+                choice_display_attr = "get_{}_display".format(
+                    field.get_attname())
                 if hasattr(root, choice_display_attr):
                     value = getattr(root, choice_display_attr)()
                 else:
@@ -70,15 +72,18 @@ def get_model_display_data(root_instance, user):
         ]
         for relation in backward_relations:
             if not isinstance(relation.field, models.OneToOneField):
-                for related in getattr(root, relation.get_accessor_name()).all():
+                for related in getattr(
+                        root, relation.get_accessor_name()).all():
                     if expand_required(related):
-                        new_objects.append((related._meta.verbose_name.title(), related))
+                        new_objects.append(
+                            (related._meta.verbose_name.title(), related))
 
         # if any suitable for display children found
         if children:
             change_perm = get_permission_codename('change', root._meta)
             if user.has_perm("%s.%s" % (root._meta.app_label, change_perm)):
-                admin_url_name = "admin:{}_{}_change".format(root._meta.app_label, root._meta.model_name)
+                admin_url_name = "admin:{}_{}_change".format(
+                    root._meta.app_label, root._meta.model_name)
                 try:
                     root_admin_url = reverse(admin_url_name, args=(root.pk,))
                 except NoReverseMatch:

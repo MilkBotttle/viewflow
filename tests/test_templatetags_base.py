@@ -11,15 +11,20 @@ from viewflow.templatetags import base
 
 class Test(TestCase):
     def setUp(self):
-        self.related = TemplateTagProcessRelated.objects.create(related_content='related')
+        self.related = TemplateTagProcessRelated.objects.create(
+            related_content='related')
         self.child_process = ChildTemplateTagProcess.objects.create(
-            content='child_process', child_content='child process content', related=self.related)
-        self.entity1 = TemplateTagProcessEntity.objects.create(process=self.child_process, content='entity1')
+            content='child_process',
+            child_content='child process content',
+            related=self.related)
+        self.entity1 = TemplateTagProcessEntity.objects.create(
+            process=self.child_process, content='entity1')
         self.entity2 = TemplateTagProcessEntity.objects.create(
             process=self.child_process, content='entity2', circled_link=self.entity1)
 
     def test_get_model_display_data_for_superuser(self):
-        self.superuser = User.objects.create(username='superuser', is_superuser=True)
+        self.superuser = User.objects.create(
+            username='superuser', is_superuser=True)
         data = base.get_model_display_data(self.child_process, self.superuser)
 
         if django.VERSION >= (1, 9):
@@ -89,7 +94,9 @@ class TemplateTagProcessRelated(models.Model):
 
 class TemplateTagProcess(models.Model):
     content = models.CharField(max_length=50)
-    related = models.ForeignKey(TemplateTagProcessRelated, on_delete=models.CASCADE)
+    related = models.ForeignKey(
+        TemplateTagProcessRelated,
+        on_delete=models.CASCADE)
 
 
 class ChildTemplateTagProcess(TemplateTagProcess):

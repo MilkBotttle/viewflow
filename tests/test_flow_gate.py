@@ -55,10 +55,9 @@ class Test(TestCase):
         act.initialize(flow_task, TaskStub())
         act.perform()
         self.assertTrue(FlowTaskStub.activated)
-        #get correct condition
+        # get correct condition
         self.assertTrue(flow_task.condition(self))
 
-    
     def test_if_activatoin_with_handler_false(self):
         def handler(activation):
             return False
@@ -71,14 +70,15 @@ class Test(TestCase):
         act.perform()
         self.assertTrue(FlowTaskStub.activated)
 
-        #get correct condition
+        # get correct condition
         self.assertFalse(flow_task.condition(self))
-         
-        
 
     def test_switch_activation_case(self):
         next_task = FlowTaskStub()
-        flow_task = self.init_node(Switch().Case(next_task, cond=lambda process: True))
+        flow_task = self.init_node(
+            Switch().Case(
+                next_task,
+                cond=lambda process: True))
 
         act = SwitchActivation()
         act.initialize(flow_task, TaskStub())

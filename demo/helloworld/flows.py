@@ -18,7 +18,8 @@ class HelloWorldFlow(Flow):
     """
     process_class = HelloWorldProcess
     process_title = _('Hello world')
-    process_description = _('This process demonstrates hello world approval request flow.')
+    process_description = _(
+        'This process demonstrates hello world approval request flow.')
 
     lock_impl = lock.select_for_update_lock
 

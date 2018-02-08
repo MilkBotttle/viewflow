@@ -146,14 +146,18 @@ class Function(mixins.TaskDescriptionMixin,
         if isinstance(self.func, ThisObject):
             self.func = getattr(self.flow_class.instance, self.func.name)
         if isinstance(self.task_loader, ThisObject):
-            self.task_loader = getattr(self.flow_class.instance, self.task_loader.name)
+            self.task_loader = getattr(
+                self.flow_class.instance,
+                self.task_loader.name)
 
     def run(self, *args, **kwargs):
         """Execute the function task."""
         if self.task_loader is None:
             if 'task' not in kwargs:
-                if len(args) == 0 or not isinstance(args[0], self.flow_class.task_class):
-                    raise FlowRuntimeError('Function {} should be called with task instance', self.name)
+                if len(args) == 0 or not isinstance(
+                        args[0], self.flow_class.task_class):
+                    raise FlowRuntimeError(
+                        'Function {} should be called with task instance', self.name)
             return self.func(*args, **kwargs)
         else:
             task = self.task_loader(self, *args, **kwargs)

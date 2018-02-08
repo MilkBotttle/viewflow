@@ -24,7 +24,10 @@ class Test(TestCase):
         request = RequestFactory().get('/start/')
         request.user = user
         request.resolver_match = resolve('/test/start/')
-        response = view(request, flow_class=StartViewTestFlow, flow_task=StartViewTestFlow.start)
+        response = view(
+            request,
+            flow_class=StartViewTestFlow,
+            flow_task=StartViewTestFlow.start)
 
         self.assertEqual(response.template_name,
                          ('tests/test_views_start/startviewtest/start.html',
@@ -35,7 +38,10 @@ class Test(TestCase):
         request = RequestFactory().post('/start/')
         request.user = user
         request.resolver_match = resolve('/test/start/')
-        response = view(request, flow_class=StartViewTestFlow, flow_task=StartViewTestFlow.start)
+        response = view(
+            request,
+            flow_class=StartViewTestFlow,
+            flow_task=StartViewTestFlow.start)
         self.assertEqual(response.status_code, 302)
 
         process = StartViewTestFlow.process_class.objects.all()[0]
@@ -49,7 +55,10 @@ class Test(TestCase):
         request = RequestFactory().get('/start/')
         request.user = user
         request.resolver_match = resolve('/test/start/')
-        response = view(request, flow_class=StartViewTestFlow, flow_task=StartViewTestFlow.start)
+        response = view(
+            request,
+            flow_class=StartViewTestFlow,
+            flow_task=StartViewTestFlow.start)
 
         self.assertEqual(response.template_name,
                          ('tests/test_views_start/startviewtest/start.html',
@@ -60,7 +69,10 @@ class Test(TestCase):
         request = RequestFactory().post('/start/')
         request.user = user
         request.resolver_match = resolve('/test/start/')
-        response = view(request, flow_class=StartViewTestFlow, flow_task=StartViewTestFlow.start)
+        response = view(
+            request,
+            flow_class=StartViewTestFlow,
+            flow_task=StartViewTestFlow.start)
         self.assertEqual(response.status_code, 302)
 
         process = StartViewTestFlow.process_class.objects.all()[0]
@@ -76,9 +88,9 @@ class StartViewFlowEntity(models.Model):
     pass
 
 
-urlpatterns = [
-    url(r'^test/', include((viewset.FlowViewSet(StartViewTestFlow).urls, 'startviewtest')))
-]
+urlpatterns = [url(r'^test/',
+                   include((viewset.FlowViewSet(StartViewTestFlow).urls,
+                            'startviewtest')))]
 
 try:
     from django.test import override_settings

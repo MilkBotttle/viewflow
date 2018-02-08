@@ -19,9 +19,11 @@ class IfActivation(AbstractGateActivation):
     def activate_next(self):
         """Conditionally activate one of outgoing nodes."""
         if self.condition_result:
-            self.flow_task._on_true.activate(prev_activation=self, token=self.task.token)
+            self.flow_task._on_true.activate(
+                prev_activation=self, token=self.task.token)
         else:
-            self.flow_task._on_false.activate(prev_activation=self, token=self.task.token)
+            self.flow_task._on_false.activate(
+                prev_activation=self, token=self.task.token)
 
 
 class If(mixins.TaskDescriptionMixin,
@@ -31,7 +33,7 @@ class If(mixins.TaskDescriptionMixin,
          mixins.PerformViewMixin,
          Gateway):
     """If gateway, activate one of outgoing node.
-        
+
     Example::
 
         class MyFlow(Flow):
@@ -41,7 +43,7 @@ class If(mixins.TaskDescriptionMixin,
                 .Else(this.end_rejected)
             )
     Example2::
-        
+
         class MyFlow(Flow):
             check_something = (
                 flow.If(this.con_func)
@@ -90,7 +92,8 @@ class If(mixins.TaskDescriptionMixin,
     @property
     def condition(self):  # noqa D012
         if isinstance(self._condition, ThisObject):
-            handler = getattr(self.flow_class.instance, self._condition.name)
-            self._condition = handler(self)
+            self._condition = getattr(
+                self.flow_class.instance,
+                self._condition.name)
 
         return self._condition
