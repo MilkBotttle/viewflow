@@ -79,10 +79,14 @@ class DetailProcessView(FlowViewPermissionMixin, generic.DetailView):
         """Context for a detail view.
 
         :keyword process: a Process instance
-        :keyword task_list: List of tasks of the process
+        :keyword task_list: List of tasks of the process or subprocess
         """
+        #Cameron.C: workround to get subprocesstask
         context = super(DetailProcessView, self).get_context_data(**kwargs)
-        context['task_list'] = context['process'].task_set.all().order_by('created')
+        try:
+            context['task_list'] = context['process'].task_set.all().order_by('created')
+        except AttributeError:
+            context['task_list'] = context['process'].subprocesstask_set.all().order_by('created')
         return context
 
     def get_queryset(self):
