@@ -48,8 +48,6 @@ _context_stack = threading.local()
 
 def all_leading_canceled(activation):
     """Condition to check that there are no outgoing tasks or all of them was canceled."""
-    import pdb
-    pdb.set_trace()
     non_canceled_count = activation.task.leading.exclude(
         status=STATUS.CANCELED).count()
     return non_canceled_count == 0
@@ -280,8 +278,6 @@ class StartActivation(Activation):
             :data:`viewflow.signals.flow_started`
 
         """
-        import pdb
-        pdb.set_trace()
         with transaction.atomic(savepoint=True):
             signals.task_started.send(
                 sender=self.flow_class,

@@ -93,8 +93,8 @@ class SubProcessAdmin(admin.ModelAdmin):
 
     actions = None
     date_hierarchy = 'created'
-    list_display = ['pk', 'created', 'flow_class', 'status', 'participants','parent_process']
-    list_display_links = ['pk', 'created', 'flow_class', 'parent_process']
+    list_display = ['pk', 'created', 'flow_class', 'status', 'participants','parent_process','parent_task']
+    list_display_links = ['pk', 'created', 'flow_class', 'parent_process', 'parent_task']
     list_filter = ['status']
     readonly_fields = ['flow_class', 'status', 'finished']
     inlines = [SubProcessTaskInline]

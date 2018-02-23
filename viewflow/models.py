@@ -193,8 +193,14 @@ class SubProcess(AbstractProcess):
     parent_process= models.ForeignKey(            
         Process,                                  
         on_delete=models.CASCADE,                 
-        verbose_name=_('ParentProcess'))          
-                                                  
+        verbose_name=_('ParentProcess'))
+
+    parent_task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        verbose_name = _('ParentTask')
+    )
+
     class Meta:  # noqa D101                      
         ordering = ['-created']                   
         verbose_name = _('SubProcess')            
@@ -206,20 +212,23 @@ class SubProcessTask(AbstractTask):
         SubProcess,                               
         on_delete=models.CASCADE,                 
         verbose_name=_('SubProcess'))             
-                                                  
+                                                      
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, blank=True, null=True, db_index=True,
         on_delete=models.CASCADE, verbose_name=_('Owner'))
+
     external_task_id = models.CharField(
         _('External Task ID'),
         max_length=50,
         blank=True,
         null=True,
         db_index=True)
+
     owner_permission = models.CharField(
         _('Permission'), max_length=255, blank=True, null=True)
 
     comments = models.TextField(_('Comments'), blank=True, null=True)
+
     class Meta:  # noqa D101
         verbose_name = _('SubProcessTask')
         verbose_name_plural = _('SubprocessTasks')
