@@ -229,7 +229,6 @@ def flow_view(view):
                 process_id=process_pk)
             activation = flow_task.activation_class()
             activation.initialize(flow_task, task)
-
             request.activation = activation
             request.process = activation.process
             request.task = activation.task

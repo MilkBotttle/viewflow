@@ -79,6 +79,17 @@
                         ----------
                         {% endfor %}
                     </div>
+                   {% if activation.task.subprocess_set.all %} 
+                    <div class="col s12 m6">
+                        <label class="active" style="display:block;margin-bottom:0.5rem">{% trans 'Subprocess' %}</label>
+
+                        {% for subprocess in activation.task.subprocess_set.all %}
+                        {{subprocess.flow_class}}
+                        <a href="{% flowurl subprocess.flow_class 'index' %}{{subprocess.pk}}">
+                            {{ subprocess.flow_class.process_title }} / #{{ subprocess.pk }}</a>{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -86,6 +97,7 @@
     </div>
 </div>
 {% endblock %}
+
 {% block right-panel %}
 <div class="right-panel">
     {% include_process_data activation.process %}
@@ -95,3 +107,4 @@
 {% task_management_menu activation request %}
 
 {% endblock %}
+

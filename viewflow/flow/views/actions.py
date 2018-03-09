@@ -310,8 +310,12 @@ class CancelProcessView(FlowManagePermissionMixin, generic.DetailView):
         return context
 
     def _get_task_list(self):
-        active_tasks = self.object.task_set.exclude(
-            status__in=[STATUS.DONE, STATUS.CANCELED])
+        try:
+            active_tasks = self.object.task_set.exclude(
+                status__in=[STATUS.DONE, STATUS.CANCELED])
+        except AttributeError:
+            active_tasks = self.object.subprocesstask_set.exclude(
+                status__in=[STATUS.DONE, STATUS.CANCELED])
         return active_tasks
 
     def _get_uncancelable_tasks(self, tasks):

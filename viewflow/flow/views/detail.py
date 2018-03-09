@@ -39,7 +39,9 @@ class DetailTaskView(generic.TemplateView):
         :keyword activation: the task activation instance
         """
         context = super(DetailTaskView, self).get_context_data(**kwargs)
+
         context['activation'] = self.activation
+
         return context
 
     @method_decorator(flow_view)

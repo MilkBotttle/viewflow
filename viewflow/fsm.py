@@ -97,6 +97,7 @@ class TransitionDescriptor(object):
 
     def __call__(self, instance, *args, **kwargs):
         """Perform the transition."""
+
         current_state = self.state.get(instance)
         transition = self.get_transition(current_state, instance)
 

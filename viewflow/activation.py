@@ -29,7 +29,7 @@ class STATUS(object):
     SCHEDULED = 'SCHEDULED'
     STARTED = 'STARTED'
     UNRIPE = 'UNRIPE'
-
+    INSUBPROGRESS = 'INSUBPROGRESS'
 
 STATUS_CHOICES = [
     (STATUS.ASSIGNED, pgettext_lazy('STATUS', 'Assigned')),
@@ -41,6 +41,7 @@ STATUS_CHOICES = [
     (STATUS.SCHEDULED, pgettext_lazy('STATUS', 'Scheduled')),
     (STATUS.STARTED, pgettext_lazy('STATUS', 'Started')),
     (STATUS.UNRIPE, pgettext_lazy('STATUS', 'Unripe')),
+    (STATUS.INSUBPROGRESS, pgettext_lazy('STATUS', 'InSubProgress')),
 ]
 
 _context_stack = threading.local()
